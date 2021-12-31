@@ -1,0 +1,5 @@
+{
+  "mq": {
+    "uri": "amqp://searchproxy:69b7f8d6f19@mq-1:5672/"
+  }
+}
