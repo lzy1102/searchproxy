@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"math/big"
 	"net"
 	"os"
@@ -21,7 +20,7 @@ func FatalAssert(err error) {
 func GetCurrentAbPathByExecutable() string {
 	exePath, err := os.Executable()
 	if err != nil {
-		log.Fatal(err)
+		FatalAssert(err)
 	}
 	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
 	return res

@@ -1,5 +1,37 @@
 {
   "mq": {
-    "uri": "amqp://searchproxy:69b7f8d6f19@mq-1:5672/"
+    "uri": "amqp://proxy:3f0c1304c3865ea6@172.16.30.190:5672/"
+  },
+  "masscan": {
+    "taskname": "masscan",
+    "cmdkey": [
+      "host",
+      "name"
+    ],
+    "cmd": "ruby urlcrazy {host} -t {name} -f json -o out.json",
+    "out": "out.json",
+    "next": [
+      {
+        "topic": "fish",
+        "carry": [],
+        "give": {}
+      }
+    ]
+  },
+  "scanproxy": {
+    "taskname": "scanproxy",
+    "cmdkey": [
+      "host",
+      "name"
+    ],
+    "cmd": "ruby urlcrazy {host} -t {name} -f json -o out.json",
+    "out": "out.json",
+    "next": [
+      {
+        "topic": "fish",
+        "carry": [],
+        "give": {}
+      }
+    ]
   }
 }

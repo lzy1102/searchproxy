@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
-	"log"
+	"searchproxy/fram/logs"
 	"searchproxy/fram/utils"
 )
 
-type MQConfig struct {
+type PublishConfig struct {
 	Topic string `json:"topic"`
 	Uri   string `json:"uri"`
 }
 
 type RabbitMqEvent struct {
-	config   *MQConfig
+	config   *PublishConfig
 	cconn    *amqp.Connection
 	consumer *amqp.Channel
 
@@ -23,14 +23,14 @@ type RabbitMqEvent struct {
 	task     Task
 }
 
-func NewMQ(cfg *MQConfig, task Task) (*RabbitMqEvent, error) {
+func NewPublish(cfg *PublishConfig, task Task) (*RabbitMqEvent, error) {
 	single := new(RabbitMqEvent)
 	single.config = cfg
 	single.task = task
 	return single, nil
 }
 
-func (r RabbitMqEvent) closeProducer() {
+func (r *RabbitMqEvent) closeProducer() {
 	if r.producer != nil {
 		utils.FatalAssert(r.producer.Close())
 	}
@@ -39,7 +39,7 @@ func (r RabbitMqEvent) closeProducer() {
 	}
 }
 
-func (r RabbitMqEvent) newProducer() {
+func (r *RabbitMqEvent) newProducer() {
 	r.closeProducer()
 	var err error
 	r.pconn, err = amqp.Dial(r.config.Uri)
@@ -48,7 +48,7 @@ func (r RabbitMqEvent) newProducer() {
 	utils.FatalAssert(err)
 }
 
-func (r RabbitMqEvent) closeConsumer() {
+func (r *RabbitMqEvent) closeConsumer() {
 	if r.consumer != nil {
 		utils.FatalAssert(r.consumer.Close())
 	}
@@ -57,7 +57,7 @@ func (r RabbitMqEvent) closeConsumer() {
 	}
 }
 
-func (r RabbitMqEvent) newConsumer() {
+func (r *RabbitMqEvent) newConsumer() {
 	r.closeConsumer()
 	var err error
 	r.cconn, err = amqp.Dial(r.config.Uri)
@@ -66,7 +66,7 @@ func (r RabbitMqEvent) newConsumer() {
 	utils.FatalAssert(err)
 }
 
-func (r RabbitMqEvent) registerConsumer() (<-chan amqp.Delivery, error) {
+func (r *RabbitMqEvent) registerConsumer() (<-chan amqp.Delivery, error) {
 	que, err := r.consumer.QueueDeclare(r.config.Topic, true, false, false,
 		false, nil)
 	if nil != err {
@@ -83,7 +83,7 @@ func (r RabbitMqEvent) registerConsumer() (<-chan amqp.Delivery, error) {
 	return msgs, nil
 }
 
-func (r RabbitMqEvent) PublishMsg(topic string, msg []byte) {
+func (r *RabbitMqEvent) PublishMsg(topic string, msg []byte) {
 	q, err := r.producer.QueueDeclare(
 		topic, // name
 		false, // durable
@@ -106,28 +106,29 @@ func (r RabbitMqEvent) PublishMsg(topic string, msg []byte) {
 	utils.FatalAssert(err)
 }
 
-func (r RabbitMqEvent) Job() {
+func (r *RabbitMqEvent) Job() {
 	r.newProducer()
 	defer r.closeProducer()
 	r.newConsumer()
 	defer r.closeConsumer()
 	msgs, err := r.registerConsumer()
 	utils.FatalAssert(err)
+	r.PublishMsg("test",[]byte("hello word"))
 	for msg := range msgs {
 		var data map[string]interface{}
 		err=json.Unmarshal(msg.Body, &data)
 		if err != nil {
-			log.Println("消息转字典出错,抛弃")
+			logs.Install().Infoln("消息转字典出错,抛弃")
 			_ = msg.Ack(true)
 			continue
 		}
-		log.Println("开始执行消息", r.config.Topic)
+		logs.Install().Infoln("开始执行消息", r.config.Topic)
 		err = r.task.Action(data, r)
 		if err != nil {
-			log.Println("执行消息出错，重投", r.config.Topic)
+			logs.Install().Infoln("执行消息出错，重投", r.config.Topic)
 			_ = msg.Nack(false, true)
 		}
-		log.Println("消息执行结束", r.config.Topic)
+		logs.Install().Infoln("消息执行结束", r.config.Topic)
 		_ = msg.Ack(true)
 	}
 }

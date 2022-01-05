@@ -1,0 +1,144 @@
+package event
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"reflect"
+	"runtime"
+	"searchproxy/fram/logs"
+	"searchproxy/fram/utils"
+	"strings"
+)
+
+type TaskConfig struct {
+	TaskName string   `json:"taskname"`
+	CmdKey   []string `json:"cmdkey"`
+	Cmd      string   `json:"cmd"`
+	Out      string   `json:"out"`
+	Next     []Next   `json:"next"`
+}
+
+type Next struct {
+	Carry []string               `json:"carry"` // 从上级携带给下级的参数
+	Topic string                 `json:"topic"` // 投递给下级任务
+	Give  map[string]interface{} `json:"give"`  // 额外携带给下级参数，如果必要的话，携带给下级
+}
+
+type TaskEvent struct {
+	ecg *TaskConfig
+}
+
+func NewTask(cfg *TaskConfig) (*TaskEvent, error) {
+	sc := new(TaskEvent)
+	sc.ecg = cfg
+	return sc, nil
+}
+
+func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
+	_ = os.Remove(t.ecg.Out)
+	cmd, err := t.cmdKeys(data)
+	if err == nil {
+		err := t.execCommand(cmd)
+		if err != nil { // 如果执行错误，删除文件
+			_ = os.Remove(t.ecg.Out)
+			return err
+		} else {
+			bts, err := ioutil.ReadFile(t.ecg.Out)
+			_ = os.Remove(t.ecg.Out)
+			if err != nil {
+				logs.Install().Infoln("读取扫描结果出错", t.ecg.TaskName)
+				return nil
+			}
+			if strings.TrimSpace(string(bts)) == "" {
+				return nil
+			}
+			var btsObj interface{}
+			utils.FatalAssert(json.Unmarshal(bts, &btsObj))
+			if reflect.TypeOf(btsObj).Kind() == reflect.Slice {
+				for _, b := range btsObj.([]interface{}) {
+					tmp := b.(map[string]interface{})
+					for _, v := range t.ecg.Next {
+						// 携带参数
+						for _, k := range v.Carry {
+							if carryVul, ok := data[k]; ok {
+								tmp[k] = carryVul
+							}
+						}
+						tmp["taskname"] = t.ecg.TaskName
+						// 额外参数
+						for gk, gv := range v.Give {
+							tmp[gk] = gv
+						}
+						nextMsg, err := json.Marshal(tmp)
+						utils.FatalAssert(err)
+						pub.PublishMsg(v.Topic, nextMsg)
+					}
+				}
+			} else {
+				for _, v := range t.ecg.Next {
+					btsObj.(map[string]interface{})["taskname"] = t.ecg.TaskName
+					for _, k := range v.Carry {
+						if carryVul, ok := data[k]; ok {
+							btsObj.(map[string]interface{})[k] = carryVul
+						}
+					}
+					// 额外参数
+					for gk, gv := range v.Give {
+						btsObj.(map[string]interface{})[gk] = gv
+					}
+					_, _ = json.Marshal(btsObj)
+					nextMsg, err := json.Marshal(btsObj)
+					utils.FatalAssert(err)
+					pub.PublishMsg(v.Topic, nextMsg)
+				}
+			}
+		}
+	} else {
+		logs.Install().Infoln("获取命令行出错 ", t.ecg.TaskName, err)
+		_ = os.Remove(t.ecg.Out)
+		return err
+	}
+	_ = os.Remove(t.ecg.Out)
+	return nil
+}
+
+func (t *TaskEvent) cmdKeys(data map[string]interface{}) (string, error) {
+	result := make(map[string]interface{})
+	for _, v := range t.ecg.CmdKey {
+		if len(strings.TrimSpace(v)) <= 0 || strings.TrimSpace(v) == " " {
+			continue
+		}
+		if vlu, ok := data[v]; ok {
+			result[v] = vlu
+		} else {
+			return "", fmt.Errorf(fmt.Sprintf("key %s is nil", v))
+		}
+	}
+
+	cmdStr := t.ecg.Cmd
+	for k, v := range result {
+		cmdStr = strings.Replace(cmdStr, fmt.Sprintf("{%v}", k), fmt.Sprintf("%v", v), -1)
+	}
+	return cmdStr, nil
+}
+
+func (t *TaskEvent) execCommand(shell string) error {
+	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
+	logs.Install().Info("开始执行 ", shell)
+	cmd := &exec.Cmd{}
+	if runtime.GOOS == "linux" {
+		cmd = exec.Command("sh", "-c", shell)
+	} else if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd.exe", "/c", shell)
+		// +build windows
+		//cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	}
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
