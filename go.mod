@@ -7,10 +7,9 @@ require (
 	github.com/cheggaaa/pb/v3 v3.0.8
 	github.com/google/gopacket v1.1.19
 	github.com/imroc/req v0.3.2
-	github.com/mostlygeek/arp v0.0.0-20170424181311-541a2129847a
-	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0
+	github.com/tevino/tcp-shaker v0.0.0-20191112104505-00eab0aefc80
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
@@ -23,6 +22,7 @@ require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
