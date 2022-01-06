@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/cheggaaa/pb/v3"
 	"github.com/imroc/req"
+	"github.com/tevino/tcp-shaker"
 	"golang.org/x/net/proxy"
 	"io"
 	"io/ioutil"
@@ -124,6 +125,33 @@ func socketdial(ip, port string) bool {
 	return true
 }
 
+func tcpshaker(ip,port string) bool {
+	c := tcp.NewChecker()
+	ctx, stopChecker := context.WithCancel(context.Background())
+	defer stopChecker()
+	go func() {
+		if err := c.CheckingLoop(ctx); err != nil {
+			fmt.Println("checking loop stopped due to fatal error: ", err)
+		}
+	}()
+
+	<-c.WaitReady()
+
+	timeout := time.Second * 1
+	err := c.CheckAddr(fmt.Sprintf("%v:%v",ip,port), timeout)
+	switch err {
+	case tcp.ErrTimeout:
+		fmt.Println("Connect to Google timed out")
+		return false
+	case nil:
+		fmt.Println("Connect to Google succeeded")
+		return true
+	default:
+		fmt.Println("Error occurred while connecting: ", err)
+		return false
+	}
+}
+
 func scan(ip string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
@@ -132,7 +160,8 @@ func scan(ip string, rate int) (result []interface{}) {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
 		go func(host, port string) {
-			portstatus := socketdial(host, port)
+			//portstatus := socketdial(host, port)
+			portstatus := tcpshaker(host, port)
 			proxystatus, isgoogle, protocol := scanproxy(host, port)
 			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
