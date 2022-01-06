@@ -1,6 +1,14 @@
 [
   {
-    "google": false,
+    "google": true,
+    "ip": "127.0.0.1",
+    "port": "9050",
+    "protocol": "socks5",
+    "proxy": true,
+    "status": true
+  },
+  {
+    "google": true,
     "ip": "127.0.0.1",
     "port": "10808",
     "protocol": "socks5",

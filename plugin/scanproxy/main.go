@@ -7,8 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/imroc/req"
 	"github.com/cheggaaa/pb/v3"
+	"github.com/imroc/req"
 	"golang.org/x/net/proxy"
 	"io"
 	"io/ioutil"
@@ -115,24 +115,26 @@ func checktitle(title string, body io.Reader) bool {
 
 func socketdial(ip, port string) bool {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%v:%v", ip, port), 5*time.Second)
+	if conn!=nil {
+		conn.Close()
+	}
 	if err != nil {
 		return false
 	}
-	defer conn.Close()
 	return true
 }
 
-func scan(ip string, thread int) (result []interface{}) {
-	tchan := make(chan interface{}, thread) // 控制任务并发的chan
+func scan(ip string, rate int) (result []interface{}) {
+	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
 	bar := pb.StartNew(65535)
 	for i := 1; i < 65535; i++ {
-		tchan <- struct{}{} // 作用类似于waitgroup.Add(1)
+		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
 		go func(host, port string) {
 			portstatus := socketdial(host, port)
 			proxystatus, isgoogle, protocol := scanproxy(host, port)
-			<-tchan // 执行完毕，释放资源
+			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
 				"ip":       host,
 				"port":     port,
@@ -154,16 +156,16 @@ func scan(ip string, thread int) (result []interface{}) {
 }
 
 type info struct {
-	ip     string
-	thread int
-	out    string
+	ip   string
+	rate int
+	out  string
 }
 
 var myinfo info
 
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "", "target ip")
-	flag.IntVar(&myinfo.thread, "thread", 100, "thread number")
+	flag.IntVar(&myinfo.rate, "rate", 100, "thread number")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
@@ -172,7 +174,7 @@ func init() {
 }
 
 func main() {
-	result := scan(myinfo.ip, myinfo.thread)
+	result := scan(myinfo.ip, myinfo.rate)
 	out, err := json.Marshal(result)
 	if err == nil {
 		_ = ioutil.WriteFile(myinfo.out, out, 0777)
