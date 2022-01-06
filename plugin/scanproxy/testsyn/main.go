@@ -20,6 +20,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"github.com/google/gopacket/examples/util"
 	"log"
 	"net"
 	"time"
@@ -228,7 +229,7 @@ func (s *scanner) send(l ...gopacket.SerializableLayer) error {
 }
 
 func main() {
-	//defer util.Run()()
+	defer util.Run()()
 	router, err := routing.New()
 	if err != nil {
 		log.Fatal("routing error:", err)
