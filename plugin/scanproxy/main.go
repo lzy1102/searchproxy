@@ -137,19 +137,12 @@ func tcpshaker(ip,port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := time.Second * 1
+	timeout := time.Second * 3
 	err := c.CheckAddr(fmt.Sprintf("%v:%v",ip,port), timeout)
-	switch err {
-	case tcp.ErrTimeout:
-		fmt.Println("Connect to Google timed out")
-		return false
-	case nil:
-		fmt.Println("Connect to Google succeeded")
+	if err==nil {
 		return true
-	default:
-		fmt.Println("Error occurred while connecting: ", err)
-		return false
 	}
+	return false
 }
 
 func scan(ip string, rate int) (result []interface{}) {
@@ -162,7 +155,11 @@ func scan(ip string, rate int) (result []interface{}) {
 		go func(host, port string) {
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
-			proxystatus, isgoogle, protocol := scanproxy(host, port)
+			var proxystatus, isgoogle bool
+			var protocol string
+			if portstatus {
+				proxystatus, isgoogle, protocol = scanproxy(host, port)
+			}
 			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
 				"ip":       host,
@@ -193,7 +190,7 @@ type info struct {
 var myinfo info
 
 func init() {
-	flag.StringVar(&myinfo.ip, "ip", "", "target ip")
+	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
 	flag.IntVar(&myinfo.rate, "rate", 100, "thread number")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()

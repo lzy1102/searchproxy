@@ -1,11 +1,14 @@
 package main
 
-import "syscall"
-
-func callsocket()  {
-	_, _ = syscall.Socket()
-}
+import (
+	"github.com/google/gopacket/routing"
+	"log"
+)
 
 func main() {
-	
+	route, err := routing.New()
+	if err!=nil {
+		log.Println(err)
+	}
+	log.Println(route)
 }
