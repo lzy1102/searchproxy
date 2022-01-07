@@ -3,6 +3,8 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"github.com/google/gopacket/routing"
 	"log"
@@ -11,7 +13,21 @@ import (
 	"syscall"
 	"unsafe"
 )
+// Pulled from http://man7.org/linux/man-pages/man7/rtnetlink.7.html
+// See the section on RTM_NEWROUTE, specifically 'struct rtmsg'.
+type routeInfoInMemory struct {
+	Family byte
+	DstLen byte
+	SrcLen byte
+	TOS    byte
 
+	Table    byte
+	Protocol byte
+	Scope    byte
+	Type     byte
+
+	Flags uint32
+}
 // rtInfo contains information on a single route.
 type rtInfo struct {
 	Src, Dst                *net.IPNet
@@ -22,6 +38,17 @@ type rtInfo struct {
 
 // routeSlice implements sort.Interface to sort routes by Priority.
 type routeSlice []*rtInfo
+
+func (r routeSlice) Len() int {
+	return len(r)
+}
+func (r routeSlice) Less(i, j int) bool {
+	return r[i].Priority < r[j].Priority
+}
+func (r routeSlice) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
 type ipAddrs struct {
 	v4, v6 net.IP
 }
@@ -30,6 +57,68 @@ type router struct {
 	addrs  []ipAddrs
 	v4, v6 routeSlice
 }
+
+func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
+	return r.RouteWithSrc(nil, nil, dst)
+}
+
+func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
+	var ifaceIndex int
+	switch {
+	case dst.To4() != nil:
+		ifaceIndex, gateway, preferredSrc, err = r.route(r.v4, input, src, dst)
+	case dst.To16() != nil:
+		ifaceIndex, gateway, preferredSrc, err = r.route(r.v6, input, src, dst)
+	default:
+		err = errors.New("IP is not valid as IPv4 or IPv6")
+	}
+
+	if err != nil {
+		return
+	}
+
+	// Interfaces are 1-indexed, but we store them in a 0-indexed array.
+	ifaceIndex--
+
+	iface = &r.ifaces[ifaceIndex]
+	if preferredSrc == nil {
+		switch {
+		case dst.To4() != nil:
+			preferredSrc = r.addrs[ifaceIndex].v4
+		case dst.To16() != nil:
+			preferredSrc = r.addrs[ifaceIndex].v6
+		}
+	}
+	return
+}
+
+func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.IP) (iface int, gateway, preferredSrc net.IP, err error) {
+	var inputIndex uint32
+	if input != nil {
+		for i, iface := range r.ifaces {
+			if bytes.Equal(input, iface.HardwareAddr) {
+				// Convert from zero- to one-indexed.
+				inputIndex = uint32(i + 1)
+				break
+			}
+		}
+	}
+	for _, rt := range routes {
+		if rt.InputIface != 0 && rt.InputIface != inputIndex {
+			continue
+		}
+		if rt.Src != nil && !rt.Src.Contains(src) {
+			continue
+		}
+		if rt.Dst != nil && !rt.Dst.Contains(dst) {
+			continue
+		}
+		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
+	}
+	err = fmt.Errorf("no route found for %v", dst)
+	return
+}
+
 
 func New() (routing.Router, error) {
 	rtr := &router{}
@@ -94,9 +183,9 @@ loop:
 		return nil, err
 	}
 	for i, iface := range ifaces {
-		if i != iface.Index-1 {
-			return nil, fmt.Errorf("out of order iface %d = %v", i, iface)
-		}
+		//if i != iface.Index-1 {
+		//	return nil, fmt.Errorf("out of order iface %d = %v", i, iface)
+		//}
 		rtr.ifaces = append(rtr.ifaces, iface)
 		var addrs ipAddrs
 		ifaceAddrs, err := iface.Addrs()
@@ -117,6 +206,7 @@ loop:
 				}
 			}
 		}
+		log.Println(i,iface.Index-1,addrs)
 		rtr.addrs = append(rtr.addrs, addrs)
 	}
 	return rtr, nil
@@ -124,7 +214,7 @@ loop:
 func main() {
 	r,err:= New()
 	if err!=nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 	log.Println(r)
 }
