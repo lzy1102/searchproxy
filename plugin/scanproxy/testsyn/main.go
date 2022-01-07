@@ -178,7 +178,7 @@ func (s *scanner) scan() error {
 			}
 		}
 		// Time out 5 seconds after the last packet we sent.
-		if time.Since(start) > time.Second*5 {
+		if time.Since(start) > time.Second*3 {
 			log.Printf("timed out for %v, assuming we've seen all we can", s.dst)
 			return nil
 		}

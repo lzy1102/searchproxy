@@ -137,7 +137,7 @@ func tcpshaker(ip,port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := time.Second * 1
+	timeout := time.Second * 5
 	err := c.CheckAddr(fmt.Sprintf("%v:%v",ip,port), timeout)
 	if err==nil {
 		return true
@@ -158,7 +158,6 @@ func scan(ip string, rate int) (result []interface{}) {
 			var proxystatus, isgoogle bool
 			var protocol string
 			if portstatus {
-				log.Println(port,portstatus)
 				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
