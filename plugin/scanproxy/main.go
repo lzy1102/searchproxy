@@ -158,6 +158,7 @@ func scan(ip string, rate int) (result []interface{}) {
 			var proxystatus, isgoogle bool
 			var protocol string
 			if portstatus {
+				log.Println(port,portstatus)
 				//proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
