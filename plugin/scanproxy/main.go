@@ -26,7 +26,7 @@ import (
 func scanproxy(ip, port string) (bool, bool, string) {
 	req.Client().Jar, _ = cookiejar.New(nil)
 	trans, _ := req.Client().Transport.(*http.Transport)
-	trans.TLSHandshakeTimeout = 5 * time.Second
+	trans.TLSHandshakeTimeout = 1 * time.Second
 	trans.DisableKeepAlives = true
 	trans.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -35,7 +35,7 @@ func scanproxy(ip, port string) (bool, bool, string) {
 		return false, false, ""
 	}
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 1 * time.Second,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
@@ -55,7 +55,7 @@ func scanproxy(ip, port string) (bool, bool, string) {
 
 	urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 1 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -67,7 +67,7 @@ func scanproxy(ip, port string) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 1 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -79,7 +79,7 @@ func scanproxy(ip, port string) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 1 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -91,7 +91,7 @@ func scanproxy(ip, port string) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 1 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -115,7 +115,7 @@ func checktitle(title string, body io.Reader) bool {
 }
 
 func socketdial(ip, port string) bool {
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%v:%v", ip, port), 5*time.Second)
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%v:%v", ip, port), 1*time.Second)
 	if conn!=nil {
 		conn.Close()
 	}
@@ -159,7 +159,7 @@ func scan(ip string, rate int) (result []interface{}) {
 			var protocol string
 			if portstatus {
 				log.Println(port,portstatus)
-				//proxystatus, isgoogle, protocol = scanproxy(host, port)
+				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
