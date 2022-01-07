@@ -23,6 +23,7 @@ import (
 	"github.com/google/gopacket/examples/util"
 	"log"
 	"net"
+	"searchproxy/plugin/scanproxy/testsyn/testrouting"
 	"time"
 
 	"github.com/google/gopacket"
@@ -230,7 +231,7 @@ func (s *scanner) send(l ...gopacket.SerializableLayer) error {
 
 func main() {
 	defer util.Run()()
-	router, err := routing.New()
+	router, err := testrouting.New()
 	if err != nil {
 		log.Fatal("routing error:", err)
 	}
