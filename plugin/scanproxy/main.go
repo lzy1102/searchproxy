@@ -137,7 +137,7 @@ func tcpshaker(ip, port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := 1 * time.Second
+	timeout := 5 * time.Second
 	err := c.CheckAddr(fmt.Sprintf("%v:%v", ip, port), timeout)
 	if err == nil {
 		return true
@@ -155,8 +155,8 @@ func scan(ip string, rate int) (result []interface{}) {
 		go func(host, port string) {
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
-			proxystatus, isgoogle,protocol := false, false,""
-			if portstatus ==true{
+			proxystatus, isgoogle, protocol := false, false, ""
+			if portstatus == true {
 				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
@@ -190,7 +190,7 @@ var myinfo info
 
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
-	flag.IntVar(&myinfo.rate, "rate", 10, "thread number")
+	flag.IntVar(&myinfo.rate, "rate", 100, "thread number")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
