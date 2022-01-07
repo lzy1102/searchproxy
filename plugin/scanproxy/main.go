@@ -115,8 +115,8 @@ func checktitle(title string, body io.Reader) bool {
 }
 
 func socketdial(ip, port string) bool {
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%v:%v", ip, port), 1*time.Second)
-	if conn!=nil {
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%v:%v", ip, port), 5*time.Second)
+	if conn != nil {
 		conn.Close()
 	}
 	if err != nil {
@@ -125,7 +125,7 @@ func socketdial(ip, port string) bool {
 	return true
 }
 
-func tcpshaker(ip,port string) bool {
+func tcpshaker(ip, port string) bool {
 	c := tcp.NewChecker()
 	ctx, stopChecker := context.WithCancel(context.Background())
 	defer stopChecker()
@@ -137,9 +137,9 @@ func tcpshaker(ip,port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := time.Second * 5
-	err := c.CheckAddr(fmt.Sprintf("%v:%v",ip,port), timeout)
-	if err==nil {
+	timeout := 5 * time.Second
+	err := c.CheckAddr(fmt.Sprintf("%v:%v", ip, port), timeout)
+	if err == nil {
 		return true
 	}
 	return false
