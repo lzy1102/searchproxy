@@ -23,7 +23,7 @@ import (
 )
 
 // proxy,google,protocol
-func scanproxy(ip, port string) (bool, bool, string) {
+func scanproxy(ip string, port int) (bool, bool, string) {
 	req.Client().Jar, _ = cookiejar.New(nil)
 	trans, _ := req.Client().Transport.(*http.Transport)
 	trans.TLSHandshakeTimeout = 5 * time.Second
@@ -125,7 +125,7 @@ func socketdial(ip, port string) bool {
 	return true
 }
 
-func tcpshaker(ip, port string) bool {
+func tcpshaker(ip string, port int) bool {
 	c := tcp.NewChecker()
 	ctx, stopChecker := context.WithCancel(context.TODO())
 	defer stopChecker()
@@ -152,7 +152,7 @@ func scan(ip string, rate int) (result []interface{}) {
 	for i := 1; i <= 65535; i++ {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
-		go func(host, port string) {
+		go func(host string, port int) {
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
 			proxystatus, isgoogle, protocol := false, false, ""
@@ -168,7 +168,7 @@ func scan(ip string, rate int) (result []interface{}) {
 				"google":   isgoogle,
 				"protocol": protocol,
 			}
-		}(ip, fmt.Sprintf("%v", i))
+		}(ip, i)
 	}
 	for i := 1; i <= 65535; i++ {
 		tmp := <-datachan

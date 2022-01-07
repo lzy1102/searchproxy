@@ -14,6 +14,7 @@ import (
 )
 
 type TaskConfig struct {
+	Datafile string   `json:"datafile"` // 传入的数据是否缓存文件
 	TaskName string   `json:"taskname"`
 	CmdKey   []string `json:"cmdkey"`
 	Cmd      string   `json:"cmd"`
@@ -38,7 +39,19 @@ func NewTask(cfg *TaskConfig) (*TaskEvent, error) {
 }
 
 func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
-	_ = os.Remove(t.ecg.Out)
+	if t.ecg.Out != ""{
+		_ = os.Remove(t.ecg.Out)
+	}
+	if t.ecg.Datafile != "" {
+		databts, err := json.Marshal(data)
+		if err != nil {
+			return nil
+		}
+		err = ioutil.WriteFile(t.ecg.Datafile, databts, 0777)
+		if err != nil {
+			return nil
+		}
+	}
 	cmd, err := t.cmdKeys(data)
 	if err == nil {
 		err := t.execCommand(cmd)
@@ -129,7 +142,6 @@ func (t *TaskEvent) execCommand(shell string) error {
 		cmd = exec.Command("sh", "-c", shell)
 	} else if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe", "/c", shell)
-		// +build windows
 		//cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	}
 	err := cmd.Run()

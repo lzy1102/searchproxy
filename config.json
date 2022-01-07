@@ -2,33 +2,33 @@
   "mq": {
     "uri": "amqp://proxy:3f0c1304c3865ea6@172.16.30.190:5672/"
   },
-  "masscan": {
-    "taskname": "masscan",
-    "cmdkey": [
-      "host",
-      "name"
-    ],
-    "cmd": "ruby urlcrazy {host} -t {name} -f json -o out.json",
-    "out": "out.json",
-    "next": [
-      {
-        "topic": "fish",
-        "carry": [],
-        "give": {}
-      }
-    ]
+  "mongo": {
+    "uri": "mongodb://admin:04aba2b0e9a1fcd4@www.xinjing123.top:27017/",
+    "dbname": "searchproxy"
+  },
+  "redis": {
+    "addr": "172.16.30.191:6380",
+    "password": "d4f800167a6e317f35454ed9024eb310",
+    "db": 0
+  },
+  "save": {
+    "datafile": "datafile.json",
+    "taskname": "save",
+    "cmdkey": [],
+    "cmd": "./save -ip {host} -rate {rate} -out out.json"
   },
   "scanproxy": {
+    "datafile": "",
     "taskname": "scanproxy",
     "cmdkey": [
       "host",
-      "name"
+      "rate"
     ],
-    "cmd": "ruby urlcrazy {host} -t {name} -f json -o out.json",
+    "cmd": "./scanproxy -ip {host} -rate {rate} -out out.json",
     "out": "out.json",
     "next": [
       {
-        "topic": "fish",
+        "topic": "save",
         "carry": [],
         "give": {}
       }
