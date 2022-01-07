@@ -155,9 +155,8 @@ func scan(ip string, rate int) (result []interface{}) {
 		go func(host, port string) {
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
-			var proxystatus, isgoogle bool
-			var protocol string
-			if portstatus {
+			proxystatus, isgoogle,protocol := false, false,""
+			if portstatus ==true{
 				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
