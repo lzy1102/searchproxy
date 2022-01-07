@@ -2,12 +2,16 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/tevino/tcp-shaker"
 	"time"
 )
 
 func main()  {
+	var addr  string
+	flag.StringVar(&addr,"addr","127.0.0.1:10808","")
+	flag.Parse()
 	c := tcp.NewChecker()
 
 	ctx, stopChecker := context.WithCancel(context.Background())
@@ -21,7 +25,7 @@ func main()  {
 	<-c.WaitReady()
 
 	timeout := time.Second * 1
-	err := c.CheckAddr("172.16.10.110:10808", timeout)
+	err := c.CheckAddr(addr, timeout)
 	switch err {
 	case tcp.ErrTimeout:
 		fmt.Println("Connect to Google timed out")
