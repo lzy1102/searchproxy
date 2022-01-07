@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"github.com/google/gopacket/routing"
+	"log"
 	"net"
 	"sort"
 	"syscall"
@@ -121,5 +122,9 @@ loop:
 	return rtr, nil
 }
 func main() {
-
+	r,err:= New()
+	if err!=nil {
+		log.Println(err)
+	}
+	log.Println(r)
 }
