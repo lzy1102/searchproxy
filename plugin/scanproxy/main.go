@@ -137,7 +137,7 @@ func tcpshaker(ip,port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := time.Second * 3
+	timeout := time.Second * 1
 	err := c.CheckAddr(fmt.Sprintf("%v:%v",ip,port), timeout)
 	if err==nil {
 		return true
