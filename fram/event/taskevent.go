@@ -42,15 +42,15 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 	cmd, err := t.cmdKeys(data)
 	if err == nil {
 		err := t.execCommand(cmd)
-		if err != nil { // 如果执行错误，删除文件
+		if err != nil {
 			return err
 		} else {
 			bts, err := ioutil.ReadFile(t.ecg.Out)
 			if err != nil {
-				logs.Install().Infoln("读取扫描结果出错", t.ecg.TaskName)
+				logs.Install().Infoln("扫描结果为空", t.ecg.TaskName)
 				return nil
 			}
-			if strings.TrimSpace(string(bts)) == "" {
+			if strings.TrimSpace(string(bts)) == "" || strings.TrimSpace(string(bts)) == "null" {
 				return nil
 			}
 			var btsObj interface{}

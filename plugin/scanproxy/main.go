@@ -200,8 +200,10 @@ func init() {
 
 func main() {
 	result := scan(myinfo.ip, myinfo.rate)
-	out, err := json.Marshal(result)
-	if err == nil {
-		_ = ioutil.WriteFile(myinfo.out, out, 0777)
+	if result!=nil {
+		out, err := json.Marshal(result)
+		if err == nil {
+			_ = ioutil.WriteFile(myinfo.out, out, 0777)
+		}
 	}
 }
