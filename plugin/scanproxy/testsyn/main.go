@@ -210,13 +210,13 @@ func (s *scanner) scan() error {
 			// happen.
 			panic("tcp layer is not tcp layer :-/")
 		} else if tcp.DstPort != 54321 {
-			// log.Printf("dst port %v does not match", tcp.DstPort)
+			log.Printf("dst port %v does not match", tcp.DstPort)
 		} else if tcp.RST {
-			//log.Printf("  port %v closed", tcp.SrcPort)
+			log.Printf("  port %v closed", tcp.SrcPort)
 		} else if tcp.SYN && tcp.ACK {
 			log.Printf("  port %v open", tcp.SrcPort)
 		} else {
-			// log.Printf("ignoring useless packet")
+			log.Printf("ignoring useless packet")
 		}
 	}
 }

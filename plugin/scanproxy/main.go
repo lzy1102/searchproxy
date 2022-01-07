@@ -153,7 +153,6 @@ func scan(ip string, rate int) (result []interface{}) {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
 		go func(host, port string) {
-
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
 			proxystatus, isgoogle,protocol := false, false,""
@@ -191,7 +190,7 @@ var myinfo info
 
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
-	flag.IntVar(&myinfo.rate, "rate", 100, "thread number")
+	flag.IntVar(&myinfo.rate, "rate", 10, "thread number")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
