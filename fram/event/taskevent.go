@@ -43,11 +43,9 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 	if err == nil {
 		err := t.execCommand(cmd)
 		if err != nil { // 如果执行错误，删除文件
-			_ = os.Remove(t.ecg.Out)
 			return err
 		} else {
 			bts, err := ioutil.ReadFile(t.ecg.Out)
-			_ = os.Remove(t.ecg.Out)
 			if err != nil {
 				logs.Install().Infoln("读取扫描结果出错", t.ecg.TaskName)
 				return nil
@@ -98,10 +96,8 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 		}
 	} else {
 		logs.Install().Infoln("获取命令行出错 ", t.ecg.TaskName, err)
-		_ = os.Remove(t.ecg.Out)
 		return err
 	}
-	_ = os.Remove(t.ecg.Out)
 	return nil
 }
 

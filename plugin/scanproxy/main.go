@@ -127,7 +127,7 @@ func socketdial(ip, port string) bool {
 
 func tcpshaker(ip, port string) bool {
 	c := tcp.NewChecker()
-	ctx, stopChecker := context.WithCancel(context.Background())
+	ctx, stopChecker := context.WithCancel(context.TODO())
 	defer stopChecker()
 	go func() {
 		if err := c.CheckingLoop(ctx); err != nil {
