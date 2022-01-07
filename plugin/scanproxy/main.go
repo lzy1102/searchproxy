@@ -137,7 +137,7 @@ func tcpshaker(ip, port string) bool {
 
 	<-c.WaitReady()
 
-	timeout := 5 * time.Second
+	timeout := 3 * time.Second
 	err := c.CheckAddr(fmt.Sprintf("%v:%v", ip, port), timeout)
 	if err == nil {
 		return true
@@ -149,7 +149,7 @@ func scan(ip string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
 	bar := pb.StartNew(65535)
-	for i := 1; i < 65535; i++ {
+	for i := 1; i <= 65535; i++ {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
 		go func(host, port string) {
@@ -170,7 +170,7 @@ func scan(ip string, rate int) (result []interface{}) {
 			}
 		}(ip, fmt.Sprintf("%v", i))
 	}
-	for i := 1; i < 65535; i++ {
+	for i := 1; i <= 65535; i++ {
 		tmp := <-datachan
 		if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
 			result = append(result, tmp)
