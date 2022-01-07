@@ -153,13 +153,14 @@ func scan(ip string, rate int) (result []interface{}) {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
 		go func(host, port string) {
-			<-ratechan // 执行完毕，释放资源
+
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
 			proxystatus, isgoogle,protocol := false, false,""
 			if portstatus ==true{
 				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
+			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
 				"ip":       host,
 				"port":     port,
