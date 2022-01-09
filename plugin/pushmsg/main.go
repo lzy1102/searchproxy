@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"github.com/imroc/req"
+	"regexp"
 	"searchproxy/fram/config"
 	"searchproxy/fram/utils"
 )
 
 type pushmsg struct {
-	pushurl string
+	Pushurl string `json:"pushurl"`
 }
 
 func push(topic, msg, url string) {
@@ -30,10 +31,50 @@ func push(topic, msg, url string) {
 	}
 }
 
+func ipfilter(ip string) bool {
+	matchString, err := regexp.MatchString("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}", ip)
+	if err != nil {
+		return false
+	}
+	if matchString {
+		ipreg := `^10\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil {
+			return false
+		}
+		if matchString {
+			return false
+		}
+
+		ipreg = `^172\.(1[6789]|2[0-9]|3[01])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil {
+			return false
+		}
+		if matchString {
+			return false
+		}
+
+		ipreg = `^192\.168\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil {
+			return false
+		}
+		if matchString {
+			return false
+		}
+		return true
+	}
+	return false
+}
+
 func main() {
 	var msg pushmsg
 	config.Install().Get("mq", &msg)
 	for i := int64(0); i < utils.Ip2Int64("255.255.255.255"); i++ {
+		if !ipfilter(utils.Int64ToIp(i)) {
+			continue
+		}
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":   utils.Int64ToIp(i),
 			"rate": 1000,
@@ -41,6 +82,6 @@ func main() {
 		if err != nil {
 			return
 		}
-		push("scanproxy", string(marshal), msg.pushurl)
+		push("scanproxy", string(marshal), msg.Pushurl)
 	}
 }
