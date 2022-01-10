@@ -62,6 +62,9 @@ func NewRedis(cfg *RedisConfig) *RedisClient {
 	rc.ctx = ctx
 	return rc
 }
+func (c RedisClient) Close()  {
+	c.cli.Close()
+}
 
 func (c RedisClient) Del(key string) {
 	err := c.cli.Del(c.ctx, key).Err()

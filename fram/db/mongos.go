@@ -53,6 +53,13 @@ func NewMongo(cfg *MongoConfig) *Models  {
 	return &db
 }
 
+func (m Models) Close()  {
+	err := m.database.Client().Disconnect(context.Background())
+	if err != nil {
+		return
+	}
+}
+
 func (m Models) FindOne(table string, filter interface{}, result interface{} ) error {
 	//var result models.User
 	err := m.database.Collection(table).FindOne(context.Background(), filter).Decode(result)
