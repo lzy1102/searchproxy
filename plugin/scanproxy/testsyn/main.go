@@ -23,16 +23,15 @@ package main
 import (
 	"errors"
 	"flag"
+	"github.com/google/gopacket"
 	"github.com/google/gopacket/examples/util"
+	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket/routing"
 	"log"
 	"net"
 	"searchproxy/plugin/scanproxy/testsyn/testrouting"
 	"time"
-
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
-	"github.com/google/gopacket/pcap"
-	"github.com/google/gopacket/routing"
 )
 
 // scanner handles scanning a single IP address.
@@ -215,7 +214,7 @@ func (s *scanner) scan() error {
 		} else if tcp.DstPort != 54321 {
 			log.Printf("dst port %v does not match", tcp.DstPort)
 		} else if tcp.RST {
-			log.Printf("  port %v closed", tcp.SrcPort)
+			//log.Printf("  port %v closed", tcp.SrcPort)
 		} else if tcp.SYN && tcp.ACK {
 			log.Printf("  port %v open", tcp.SrcPort)
 		} else {
