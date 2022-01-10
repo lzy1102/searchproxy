@@ -15,6 +15,9 @@
 // simple timeout logic with time.Since.
 //
 // Making it blazingly fast is left as an exercise to the reader.
+//go:build linux
+// +build linux
+
 package main
 
 import (
