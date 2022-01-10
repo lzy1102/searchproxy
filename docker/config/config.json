@@ -17,7 +17,7 @@
     "datafile": "datafile.json",
     "taskname": "save",
     "cmdkey": [],
-    "cmd": "./save -ip {host} -rate {rate} -out out.json"
+    "cmd": "./save -file datafile.json"
   },
   "scanproxy": {
     "datafile": "",
