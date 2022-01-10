@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/imroc/req"
 	"io/ioutil"
+	"log"
 	"os"
 	"searchproxy/fram/utils"
 	"sync"
@@ -53,6 +54,7 @@ func Install() *flagValue {
 }
 
 func (f *flagValue) Get(path string, obj interface{}) {
+	log.Println(f.cfg)
 	out, err := json.Marshal(f.cfg[path])
 	utils.FatalAssert(err)
 	_ = json.Unmarshal(out, obj)
