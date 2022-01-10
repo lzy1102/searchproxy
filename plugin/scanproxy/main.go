@@ -26,7 +26,7 @@ import (
 func scanproxy(ip string, port int) (bool, bool, string) {
 	req.Client().Jar, _ = cookiejar.New(nil)
 	trans, _ := req.Client().Transport.(*http.Transport)
-	trans.TLSHandshakeTimeout = 5 * time.Second
+	trans.TLSHandshakeTimeout = 3 * time.Second
 	trans.DisableKeepAlives = true
 	trans.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -35,7 +35,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 		return false, false, ""
 	}
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 3 * time.Second,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
@@ -55,11 +55,11 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 
 	urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 3 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("http://www.google.com", client, req.Header{
+	r, err = req.Get("https://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
@@ -67,11 +67,11 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 3 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("http://www.google.com", client, req.Header{
+	r, err = req.Get("https://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
@@ -79,11 +79,11 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 3 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("http://www.baidu.com", client, req.Header{
+	r, err = req.Get("https://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
@@ -91,11 +91,11 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 3 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("http://www.baidu.com", client, req.Header{
+	r, err = req.Get("https://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
@@ -190,7 +190,7 @@ var myinfo info
 
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
-	flag.IntVar(&myinfo.rate, "rate", 100, "thread number")
+	flag.IntVar(&myinfo.rate, "rate", 1000, "thread number")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
