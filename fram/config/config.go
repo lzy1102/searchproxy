@@ -13,7 +13,7 @@ import (
 )
 
 type flagValue struct {
-	mod     string
+	mod     bool
 	scan    string
 	cfgaddr string
 	cfg     map[string]interface{}
@@ -25,19 +25,19 @@ var f *flagValue
 func Install() *flagValue {
 	once.Do(func() {
 		f = &flagValue{}
-		flag.StringVar(&f.mod, "mod", "0", "mod is release")
+		flag.BoolVar(&f.mod, "mod", false, "mod is release")
 		flag.StringVar(&f.scan, "scan", "scanproxy", "config key name ")
 		flag.StringVar(&f.cfgaddr, "cfgaddr", "config-1:8080", "config host:port")
 		flag.Parse()
 		var err error
 		var out []byte
 		if os.Getenv("MOD") != "" && os.Getenv("MOD") == "1" {
-			f.mod = os.Getenv("MOD")
+			f.mod = true
 		}
 		if os.Getenv("MOD") != "" && os.Getenv("MOD") == "0" {
-			f.mod = os.Getenv("MOD")
+			f.mod = false
 		}
-		if f.mod == "1" {
+		if f.mod {
 			//out, err = ioutil.ReadFile(fmt.Sprintf("%v/config.json",utils.GetCurrentAbPathByExecutable()))
 			r, err := req.Get(fmt.Sprintf("http://%v/api/config/get", f.cfgaddr))
 			if err != nil {
@@ -62,7 +62,7 @@ func (f *flagValue) Get(path string, obj interface{}) {
 }
 
 func (f *flagValue) Mod() bool {
-	return f.mod == "1"
+	return f.mod
 }
 
 func (f *flagValue) GetScanName() string {
