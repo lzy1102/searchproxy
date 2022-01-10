@@ -9,7 +9,7 @@
     "dbname": "searchproxy"
   },
   "cache": {
-    "addr": "172.16.30.191:6380",
+    "addr": "172.16.30.191:6379",
     "password": "d4f800167a6e317f35454ed9024eb310",
     "db": 0
   },
