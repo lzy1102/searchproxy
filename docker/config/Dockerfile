@@ -8,4 +8,4 @@ COPY . /opt/
 WORKDIR /opt/
 RUN chmod 777 *
 RUN rm -rf /opt/Dockerfile
-CMD ["./config -cfgaddr=config-1:8080"]
+CMD ["./config"]
