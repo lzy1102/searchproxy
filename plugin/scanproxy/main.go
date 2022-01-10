@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/cheggaaa/pb/v3"
 	"github.com/imroc/req"
 	"github.com/tevino/tcp-shaker"
 	"golang.org/x/net/proxy"
@@ -150,10 +151,10 @@ func tcpshaker(ip string, port int) bool {
 func scan(ip string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
-	//bar := pb.StartNew(65535)
+	bar := pb.StartNew(65535)
 	for i := 1; i <= 65535; i++ {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
-		//bar.Increment()
+		bar.Increment()
 		go func(host string, port int) {
 			//portstatus := socketdial(host, port)
 			portstatus := tcpshaker(host, port)
@@ -179,7 +180,7 @@ func scan(ip string, rate int) (result []interface{}) {
 			result = append(result, tmp)
 		}
 	}
-	//bar.Finish()
+	bar.Finish()
 	return result
 }
 

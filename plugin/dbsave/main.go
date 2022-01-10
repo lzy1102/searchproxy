@@ -31,7 +31,7 @@ func main() {
 	sc.db = db2.NewMongo(&dbcfg)
 
 	var cachecfg db2.RedisConfig
-	config.Install().Get("redis", &cachecfg)
+	config.Install().Get("cache", &cachecfg)
 	sc.cache = db2.NewRedis(&cachecfg)
 
 	bts, err := ioutil.ReadFile(sc.datafile)

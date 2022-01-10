@@ -31,7 +31,7 @@ func RedisInstance() *RedisClient {
 	ronce.Do(func() {
 		rds = new(RedisClient)
 		var cfg RedisConfig
-		config.Install().Get("redis", &cfg)
+		config.Install().Get("cache", &cfg)
 		rds.cfg = &cfg
 		rdb := redis.NewClient(&redis.Options{
 			Addr:     rds.cfg.Addr,
@@ -62,7 +62,7 @@ func NewRedis(cfg *RedisConfig) *RedisClient {
 	rc.ctx = ctx
 	return rc
 }
-func (c RedisClient) Close()  {
+func (c RedisClient) Close() {
 	c.cli.Close()
 }
 

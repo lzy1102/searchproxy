@@ -1,0 +1,1 @@
+db.getSiblingDB("searchproxy").info.createIndex({"ip": 1, "port": 1})

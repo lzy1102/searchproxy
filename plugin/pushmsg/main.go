@@ -2,15 +2,20 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/imroc/req"
+	"github.com/robfig/cron/v3"
 	"net"
 	"regexp"
 	"searchproxy/fram/config"
 	"searchproxy/fram/utils"
+	"strconv"
+	"strings"
 )
 
 type pushmsg struct {
-	Pushurl string `json:"pushurl"`
+	Pushurl   string `json:"pushurl"`
+	Getqueues string `json:"getqueues"`
 }
 
 func push(topic, msg, url string) {
@@ -30,6 +35,26 @@ func push(topic, msg, url string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func getcount(topic, url string) int64 {
+	resp, err := req.Get(url + topic)
+	if err != nil {
+		return 0
+	}
+	var data map[string]interface{}
+	err = resp.ToJSON(&data)
+	if err != nil {
+		return 0
+	}
+	if messages, ok := data["messages"]; ok {
+		i64, err := strconv.ParseInt(fmt.Sprintf("%v", messages), 10, 64)
+		if err != nil {
+			return 0
+		}
+		return i64
+	}
+	return 0
 }
 
 func ipfilter(ip string) bool {
@@ -97,14 +122,15 @@ func ipfilter(ip string) bool {
 		if matchString {
 			return false
 		}
+		if ip == "1.1.1.1" || ip == "8.8.8.8" || ip == "114.114.114.114" || ip == "222.222.222.222" || strings.Split(ip, ".")[0] == "127" || strings.Split(ip, ".")[0] == "0" {
+			return false
+		}
 		return true
 	}
 	return false
 }
 
-func main() {
-	var msg pushmsg
-	config.Install().Get("mq", &msg)
+func taskpush(m *pushmsg) {
 	for i := int64(0); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		if !ipfilter(utils.Int64ToIp(i)) {
 			continue
@@ -114,8 +140,22 @@ func main() {
 			"rate": 1000,
 		})
 		if err != nil {
-			return
+			continue
 		}
-		push("scanproxy", string(marshal), msg.Pushurl)
+		push("scanproxy", string(marshal), m.Pushurl)
 	}
+}
+
+func main() {
+	var msg pushmsg
+	config.Install().Get("mq", &msg)
+	taskpush(&msg)
+	c := cron.New() // 新建一个定时任务对象
+	c.AddFunc("*/10 * * * *", func() {
+		if getcount("scanproxy", msg.Getqueues) == 0 {
+			taskpush(&msg)
+		}
+	}) // 给对象增加定时任务
+	c.Start()
+	select {}
 }

@@ -1,5 +1,39 @@
 {
   "mq": {
-    "uri": "amqp://proxy:3f0c1304c3865ea6@mq-1:5672/"
+    "uri": "amqp://proxy:3f0c1304c3865ea6@mq-1:5672/",
+    "pushurl": "http://proxy:3f0c1304c3865ea6@mq-1:15672/api/exchanges/%2F/amq.default/publish",
+    "getqueues": "http://mq-1:15672/api/queues/%2F/"
+  },
+  "mongo": {
+    "uri": "mongodb://admin:04aba2b0e9a1fcd4@db-1:27017/",
+    "dbname": "searchproxy"
+  },
+  "cache": {
+    "addr": "cache-1:6379",
+    "password": "d4f800167a6e317f35454ed9024eb310",
+    "db": 0
+  },
+  "save": {
+    "datafile": "datafile.json",
+    "taskname": "save",
+    "cmdkey": [],
+    "cmd": "./save -ip {host} -rate {rate} -out out.json"
+  },
+  "scanproxy": {
+    "datafile": "",
+    "taskname": "scanproxy",
+    "cmdkey": [
+      "ip",
+      "rate"
+    ],
+    "cmd": "./scanproxy -ip {ip} -rate {rate} -out out.json",
+    "out": "out.json",
+    "next": [
+      {
+        "topic": "save",
+        "carry": [],
+        "give": {}
+      }
+    ]
   }
 }
