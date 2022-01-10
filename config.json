@@ -23,10 +23,10 @@
     "datafile": "",
     "taskname": "scanproxy",
     "cmdkey": [
-      "host",
+      "ip",
       "rate"
     ],
-    "cmd": "./scanproxy -ip {host} -rate {rate} -out out.json",
+    "cmd": "./scanproxy -ip {ip} -rate {rate} -out out.json",
     "out": "out.json",
     "next": [
       {
