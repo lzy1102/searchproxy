@@ -58,6 +58,7 @@ func (f *flagValue) Get(path string, obj interface{}) {
 	out, err := json.Marshal(f.cfg[path])
 	utils.FatalAssert(err)
 	_ = json.Unmarshal(out, obj)
+	log.Println(obj)
 }
 
 func (f *flagValue) Mod() bool {
