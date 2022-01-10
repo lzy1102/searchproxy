@@ -1,7 +1,7 @@
 {
   "mq": {
     "uri": "amqp://proxy:3f0c1304c3865ea6@172.16.30.190:5672/",
-    "pushurl": "http://proxy:3f0c1304c3865ea6@172.16.30.190:15672/api/exchanges/%2F/amq.default/publish",
+    "pushurl": "http://proxy:3f0c1304c3865ea6@172.16.30.190:15672/api/exchanges/%2F/amq.default/publish"
   },
   "mongo": {
     "uri": "mongodb://admin:04aba2b0e9a1fcd4@www.xinjing123.top:27017/",

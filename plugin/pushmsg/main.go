@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/imroc/req"
+	"net"
 	"regexp"
 	"searchproxy/fram/config"
 	"searchproxy/fram/utils"
@@ -37,6 +38,39 @@ func ipfilter(ip string) bool {
 		return false
 	}
 	if matchString {
+
+		addr, err := net.ResolveIPAddr("ip", "google.com")
+		if err != nil {
+			return false
+		}
+		if addr.String() == ip {
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "baidu.com")
+		if err != nil {
+			return false
+		}
+		if addr.String() == ip {
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "www.google.com")
+		if err != nil {
+			return false
+		}
+		if addr.String() == ip {
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "www.baidu.com")
+		if err != nil {
+			return false
+		}
+		if addr.String() == ip {
+			return false
+		}
+
 		ipreg := `^10\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
 		matchString, err = regexp.MatchString(ipreg, ip)
 		if err != nil {

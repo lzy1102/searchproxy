@@ -40,13 +40,13 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
 			}}}
-	r, err := req.Get("http://www.google.com", client, req.Header{
+	r, err := req.Get("https://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
 		return true, true, "socks5"
 	}
-	r, err = req.Get("http://www.baidu.com", client, req.Header{
+	r, err = req.Get("https://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
@@ -200,7 +200,7 @@ func init() {
 
 func main() {
 	result := scan(myinfo.ip, myinfo.rate)
-	if result!=nil {
+	if result != nil {
 		out, err := json.Marshal(result)
 		if err == nil {
 			_ = ioutil.WriteFile(myinfo.out, out, 0777)
