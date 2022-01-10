@@ -29,7 +29,7 @@ import (
 func scanproxy(ip string, port int) (bool, bool, string) {
 	req.Client().Jar, _ = cookiejar.New(nil)
 	trans, _ := req.Client().Transport.(*http.Transport)
-	trans.TLSHandshakeTimeout = 3 * time.Second
+	trans.TLSHandshakeTimeout = 5 * time.Second
 	trans.DisableKeepAlives = true
 	trans.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -38,7 +38,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 		return false, false, ""
 	}
 	client := &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
@@ -58,7 +58,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 
 	urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -70,7 +70,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -82,7 +82,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -94,7 +94,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -140,7 +140,7 @@ func tcpshaker(ip string, port int) bool {
 
 	<-c.WaitReady()
 
-	timeout := 3 * time.Second
+	timeout := 5 * time.Second
 	err := c.CheckAddr(fmt.Sprintf("%v:%v", ip, port), timeout)
 	if err == nil {
 		return true
