@@ -43,5 +43,5 @@ func main() {
 	}
 	var result map[string]interface{}
 	_ = sc.db.FindOne("info", bson.M{"ip": data["ip"], "port": data["port"]}, &result)
-	
+
 }
