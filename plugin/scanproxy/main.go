@@ -184,6 +184,10 @@ func scan(ip string, rate int) (result []interface{}) {
 	return result
 }
 
+func masscan(ip string, rate int) {
+
+}
+
 type info struct {
 	ip   string
 	rate int
