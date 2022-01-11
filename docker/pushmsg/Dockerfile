@@ -8,4 +8,4 @@ COPY . /opt/
 WORKDIR /opt/
 RUN chmod 777 *
 RUN rm -rf /opt/Dockerfile
-CMD ["./pushmsg -mod=true"]
+CMD ./pushmsg -mod=true
