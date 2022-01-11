@@ -8,5 +8,4 @@ COPY . /opt/
 WORKDIR /opt/
 RUN chmod +x *
 RUN rm -rf /opt/Dockerfile
-#CMD ["./start.sh"]
-CMD ./task -scan=scanproxy -mod=true
+CMD ["./task", "-scan=scanproxy", "-mod=true"]
