@@ -132,7 +132,7 @@ func ipfilter(ip string) bool {
 }
 
 func taskpush(m *pushmsg) {
-	for i := int64(0); i < utils.Ip2Int64("255.255.255.255"); i++ {
+	for i := utils.Ip2Int64("1.0.0.0"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		if !ipfilter(utils.Int64ToIp(i)) {
 			log.Println(utils.Int64ToIp(i), "continue")
 			continue
@@ -145,7 +145,7 @@ func taskpush(m *pushmsg) {
 		if err != nil {
 			continue
 		}
-		push("scanproxy", string(marshal), m.Pushurl)
+		go push("scanproxy", string(marshal), m.Pushurl)
 	}
 }
 
