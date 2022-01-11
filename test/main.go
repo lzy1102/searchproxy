@@ -2,8 +2,10 @@ package main
 
 import (
 	"github.com/imroc/req"
-	"io/ioutil"
 	"log"
+	"net"
+	"regexp"
+	"strings"
 )
 
 func createtopic(topic, url string) {
@@ -25,17 +27,69 @@ func createtopic(topic, url string) {
 	log.Println(response.Response().Status)
 }
 
+func ipfilter(ip string) bool {
+	matchString, err := regexp.MatchString("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}", ip)
+	if err != nil {
+		log.Println("非法IP")
+		return false
+	}
+	if matchString {
+
+		addr, err := net.ResolveIPAddr("ip", "google.com")
+		if err != nil || addr.String() == ip {
+			log.Println("是 google")
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "baidu.com")
+		if err != nil || addr.String() == ip {
+			log.Println("是 百度")
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "www.google.com")
+		if err != nil || addr.String() == ip {
+			log.Println("是 google")
+			return false
+		}
+
+		addr, err = net.ResolveIPAddr("ip", "www.baidu.com")
+		if err != nil || addr.String() == ip {
+			log.Println("是 百度")
+			return false
+		}
+
+		ipreg := `^10\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil || matchString {
+			log.Println("是 10段")
+			return false
+		}
+
+		ipreg = `^172\.(1[6789]|2[0-9]|3[01])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil || matchString {
+			log.Println("是 172段")
+			return false
+		}
+
+		ipreg = `^192\.168\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil || matchString {
+			log.Println("是 192段")
+			return false
+		}
+		if strings.Split(ip, ".")[0] == "127" || strings.Split(ip, ".")[0] == "0" {
+			log.Println("是DNS")
+			return false
+		}
+		return true
+	}
+	return false
+}
+
 func main() {
-	createtopic("hello", "")
-	get, err := req.Get("http://proxy:3f0c1304c3865ea6@172.16.30.190:15672/api/queues/%2F/")
-	if err != nil {
-		panic(err)
+	if !ipfilter("10.0.72.177") {
+		log.Println("dfsfafdsa")
 	}
-	var data interface{}
-	err = get.ToJSON(&data)
-	if err != nil {
-		panic(err)
-	}
-	ioutil.WriteFile("out.json", get.Bytes(), 0777)
-	log.Println(data)
 }

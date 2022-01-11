@@ -99,69 +99,57 @@ func createtopic(topic, url string) {
 func ipfilter(ip string) bool {
 	matchString, err := regexp.MatchString("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}", ip)
 	if err != nil {
+		log.Println("非法IP")
 		return false
 	}
 	if matchString {
 
 		addr, err := net.ResolveIPAddr("ip", "google.com")
-		if err != nil {
-			return false
-		}
-		if addr.String() == ip {
+		if err != nil || addr.String() == ip {
+			log.Println("是 google")
 			return false
 		}
 
 		addr, err = net.ResolveIPAddr("ip", "baidu.com")
-		if err != nil {
-			return false
-		}
-		if addr.String() == ip {
+		if err != nil || addr.String() == ip {
+			log.Println("是 百度")
 			return false
 		}
 
 		addr, err = net.ResolveIPAddr("ip", "www.google.com")
-		if err != nil {
-			return false
-		}
-		if addr.String() == ip {
+		if err != nil || addr.String() == ip {
+			log.Println("是 google")
 			return false
 		}
 
 		addr, err = net.ResolveIPAddr("ip", "www.baidu.com")
-		if err != nil {
-			return false
-		}
-		if addr.String() == ip {
+		if err != nil || addr.String() == ip {
+			log.Println("是 百度")
 			return false
 		}
 
 		ipreg := `^10\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
 		matchString, err = regexp.MatchString(ipreg, ip)
-		if err != nil {
-			return false
-		}
-		if matchString {
+		if err != nil || matchString {
+			log.Println("是 10段")
 			return false
 		}
 
 		ipreg = `^172\.(1[6789]|2[0-9]|3[01])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
 		matchString, err = regexp.MatchString(ipreg, ip)
-		if err != nil {
-			return false
-		}
-		if matchString {
+		if err != nil || matchString {
+			log.Println("是 172段")
 			return false
 		}
 
 		ipreg = `^192\.168\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
 		matchString, err = regexp.MatchString(ipreg, ip)
-		if err != nil {
+		if err != nil || matchString {
+			log.Println("是 192段")
 			return false
 		}
-		if matchString {
-			return false
-		}
-		if ip == "1.1.1.1" || ip == "8.8.8.8" || ip == "114.114.114.114" || ip == "222.222.222.222" || strings.Split(ip, ".")[0] == "127" || strings.Split(ip, ".")[0] == "0" {
+		if strings.Split(ip, ".")[0] == "127" || strings.Split(ip, ".")[0] == "0" {
+			log.Println("是DNS")
 			return false
 		}
 		return true
@@ -171,7 +159,7 @@ func ipfilter(ip string) bool {
 
 func taskpush(m *pushmsg) {
 	for i := utils.Ip2Int64("1.0.0.0"); i < utils.Ip2Int64("255.255.255.255"); i++ {
-		if !ipfilter(utils.Int64ToIp(i)) {
+		if ipfilter(utils.Int64ToIp(i)) == false {
 			log.Println(utils.Int64ToIp(i), "continue")
 			continue
 		}
