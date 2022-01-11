@@ -196,6 +196,12 @@ func main() {
 	if !istopic("scanproxy", msg.Getqueues) {
 		createtopic("scanproxy", msg.Getqueues)
 	}
+	marshal, _ := json.Marshal(map[string]interface{}{
+		"ip":     "172.16.10.110",
+		"scaner": "masscan",
+		"rate":   10000,
+	})
+	push("scanproxy", string(marshal), msg.Pushurl)
 	taskpush(&msg)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
