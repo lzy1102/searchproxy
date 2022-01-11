@@ -23,24 +23,26 @@ build_mq:
 	cd mq;docker build -t searchmq .;cd -;
 build_config:
 	cp -rf ../bin/config config/
+	cp -rf ../bin/config.json config/
 	cd config;docker build -t config .;cd -;
-	rm -rf config/config
+	rm -rf config/config config/config.json
 build_pushmsg:
 	cp -rf ../bin/pushmsg pushmsg/
+	cp -rf ../bin/config.json config/
 	cd pushmsg;docker build -t pushmsg .;cd -;
-	rm -rf pushmsg/pushmsg
+	rm -rf pushmsg/pushmsg pushmsg/config.json
 build_scanproxy:
 	cp -rf ../bin/task scanproxy/
 	cp -rf ../bin/scanproxy scanproxy/
+	cp -rf ../bin/config.json config/
 	cd scanproxy;docker build -t scanproxy .;cd -;
-	rm -rf scanproxy/scanproxy
-	rm -rf scanproxy/task
+	rm -rf scanproxy/scanproxy scanproxy/task scanproxy/config.json
 build_save:
 	cp -rf ../bin/task save/
 	cp -rf ../bin/save save/
+	cp -rf ../bin/config.json config/
 	cd save;docker build -t save .;cd -;
-	rm -rf save/task
-	rm -rf save/save
+	rm -rf save/task save/save save/config.json
 play_config:
 	docker run --network searchproxy --name config-1 --restart=always -d config || exit 0
 play_db:
