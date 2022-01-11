@@ -15,8 +15,7 @@ func FatalAssert(err error) {
 	}
 }
 
-
-// 获取当前执行程序所在的绝对路径
+// GetCurrentAbPathByExecutable 获取当前执行程序所在的绝对路径
 func GetCurrentAbPathByExecutable() string {
 	exePath, err := os.Executable()
 	if err != nil {
@@ -31,7 +30,7 @@ func RemoveRepeatedElement(arr []string) (newArr []string) {
 	m := make(map[string]bool) //map的值不重要
 	for _, v := range arr {
 		if _, ok := m[v]; !ok {
-			if strings.TrimSpace(v) !=""{
+			if strings.TrimSpace(v) != "" {
 				result = append(result, v)
 				m[v] = true
 			}
@@ -39,7 +38,6 @@ func RemoveRepeatedElement(arr []string) (newArr []string) {
 	}
 	return result
 }
-
 
 func Int64ToIp(ip int64) string {
 	return fmt.Sprintf("%d.%d.%d.%d",

@@ -113,10 +113,9 @@ func (r *RabbitMqEvent) Job() {
 	defer r.closeConsumer()
 	msgs, err := r.registerConsumer()
 	utils.FatalAssert(err)
-	r.PublishMsg("test",[]byte("hello word"))
 	for msg := range msgs {
 		var data map[string]interface{}
-		err=json.Unmarshal(msg.Body, &data)
+		err = json.Unmarshal(msg.Body, &data)
 		if err != nil {
 			logs.Install().Infoln("消息转字典出错,抛弃")
 			_ = msg.Ack(true)
