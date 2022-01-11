@@ -145,7 +145,7 @@ func taskpush(m *pushmsg) {
 		if err != nil {
 			continue
 		}
-		go push("scanproxy", string(marshal), m.Pushurl)
+		push("scanproxy", string(marshal), m.Pushurl)
 	}
 }
 
