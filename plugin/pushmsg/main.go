@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/imroc/req"
 	"github.com/robfig/cron/v3"
+	"log"
 	"net"
 	"regexp"
 	"searchproxy/fram/config"
@@ -133,8 +134,10 @@ func ipfilter(ip string) bool {
 func taskpush(m *pushmsg) {
 	for i := int64(0); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		if !ipfilter(utils.Int64ToIp(i)) {
+			log.Println(utils.Int64ToIp(i), "continue")
 			continue
 		}
+		log.Println(utils.Int64ToIp(i))
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":   utils.Int64ToIp(i),
 			"rate": 1000,
