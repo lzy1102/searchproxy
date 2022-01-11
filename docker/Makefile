@@ -47,7 +47,7 @@ play_config:
 play_db:
 	docker run --network searchproxy --name db-1 --restart=always -d searchdb || exit 0
 play_mq:
-	docker run --network searchproxy --name mq-1 --restart=always -p 5672:5672 -d searchmq || exit 0
+	docker run --network searchproxy --name mq-1 --restart=always -p 15672:15672 -p 5672:5672 -d searchmq || exit 0
 play_cache:
 	docker run --network searchproxy --name cache-1 --restart=always -d searchcache || exit 0
 play_scanproxy:
