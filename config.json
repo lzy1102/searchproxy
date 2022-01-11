@@ -24,9 +24,10 @@
     "taskname": "scanproxy",
     "cmdkey": [
       "ip",
-      "rate"
+      "rate",
+      "scaner"
     ],
-    "cmd": "./scanproxy -ip {ip} -rate {rate} -out out.json",
+    "cmd": "./scanproxy -ip {ip} -rate {rate} -scaner {scaner} -out out.json",
     "out": "out.json",
     "next": [
       {

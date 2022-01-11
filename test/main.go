@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/imroc/req"
 	"log"
+	"math/rand"
 	"net"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func createtopic(topic, url string) {
@@ -89,7 +92,10 @@ func ipfilter(ip string) bool {
 }
 
 func main() {
-	if !ipfilter("10.0.72.177") {
-		log.Println("dfsfafdsa")
+	rand.Seed(time.Now().Unix()) // unix 时间戳，秒
+	for {
+		data := rand.Int31n(2)
+		fmt.Println(data)
 	}
+
 }

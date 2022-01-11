@@ -63,5 +63,5 @@ func main() {
 	flag.StringVar(&ip, "ip", "127.0.0.1", "target ip")
 	flag.IntVar(&rate, "rate", 1000, "thread number")
 	flag.Parse()
-	scan(ip, rate)
+
 }

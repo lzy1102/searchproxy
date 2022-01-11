@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/cheggaaa/pb/v3"
+	"github.com/dean2021/go-masscan"
 	"github.com/imroc/req"
 	"github.com/tevino/tcp-shaker"
 	"golang.org/x/net/proxy"
@@ -21,6 +22,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -148,7 +150,7 @@ func tcpshaker(ip string, port int) bool {
 	return false
 }
 
-func scan(ip string, rate int) (result []interface{}) {
+func synscan(ip string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
 	bar := pb.StartNew(65535)
@@ -184,14 +186,65 @@ func scan(ip string, rate int) (result []interface{}) {
 	return result
 }
 
-func masscan(ip string, rate int) {
-
+func masscaner(target, rate string) []interface{} {
+	m := masscan.New()
+	// masscan可执行文件路径,默认不需要设置
+	//m.SetSystemPath("D:\\Program Files\\masscan/masscan.exe")
+	// 扫描端口范围
+	m.SetPorts("0-65535")
+	// 扫描IP范围
+	m.SetRanges(target)
+	// 扫描速率
+	m.SetRate(rate)
+	// 隔离扫描名单
+	//m.SetExclude("127.0.0.1")
+	// 开始扫描
+	err := m.Run()
+	if err != nil {
+		fmt.Println("scanner failed:", err)
+		return nil
+	}
+	// 解析扫描结果
+	results, err := m.Parse()
+	if err != nil {
+		fmt.Println("Parse scanner result:", err)
+		return nil
+	}
+	data := make([]interface{}, 0)
+	count := 0
+	datachan := make(chan interface{}, 0)
+	for _, result := range results {
+		for _, port := range result.Ports {
+			if port.State.State == "open" {
+				count++
+				atoi, _ := strconv.Atoi(port.Portid)
+				go func(host string, port int) {
+					proxystatus, isgoogle, protocol := false, false, ""
+					proxystatus, isgoogle, protocol = scanproxy(host, port)
+					datachan <- map[string]interface{}{
+						"ip":       host,
+						"port":     port,
+						"status":   true,
+						"proxy":    proxystatus,
+						"google":   isgoogle,
+						"protocol": protocol,
+					}
+				}(result.Address.Addr, atoi)
+			}
+		}
+	}
+	for i := 0; i < count; i++ {
+		tmp := <-datachan
+		data = append(data, tmp)
+	}
+	return data
 }
 
 type info struct {
-	ip   string
-	rate int
-	out  string
+	ip     string
+	rate   int
+	scaner string
+	out    string
 }
 
 var myinfo info
@@ -199,6 +252,7 @@ var myinfo info
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
 	flag.IntVar(&myinfo.rate, "rate", 1000, "thread number")
+	flag.StringVar(&myinfo.scaner, "scaner", "syn", "scan name")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
@@ -207,7 +261,12 @@ func init() {
 }
 
 func main() {
-	result := scan(myinfo.ip, myinfo.rate)
+	var result []interface{}
+	if myinfo.scaner == "syn" {
+		result = synscan(myinfo.ip, myinfo.rate)
+	} else if myinfo.scaner == "masscan" {
+		result = masscaner(myinfo.ip, fmt.Sprintf("%v", myinfo.rate))
+	}
 	if result != nil {
 		out, err := json.Marshal(result)
 		if err == nil {

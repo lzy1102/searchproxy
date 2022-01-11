@@ -6,12 +6,14 @@ import (
 	"github.com/imroc/req"
 	"github.com/robfig/cron/v3"
 	"log"
+	"math/rand"
 	"net"
 	"regexp"
 	"searchproxy/fram/config"
 	"searchproxy/fram/utils"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type pushmsg struct {
@@ -158,15 +160,23 @@ func ipfilter(ip string) bool {
 }
 
 func taskpush(m *pushmsg) {
+	rand.Seed(time.Now().Unix())
 	for i := utils.Ip2Int64("1.0.0.0"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		if ipfilter(utils.Int64ToIp(i)) == false {
 			log.Println(utils.Int64ToIp(i), "continue")
 			continue
 		}
 		log.Println(utils.Int64ToIp(i))
+		var scner string
+		if rand.Int31n(2) == 0 {
+			scner = "syn"
+		} else {
+			scner = "masscan"
+		}
 		marshal, err := json.Marshal(map[string]interface{}{
-			"ip":   utils.Int64ToIp(i),
-			"rate": 1000,
+			"ip":     utils.Int64ToIp(i),
+			"scaner": scner,
+			"rate":   1000,
 		})
 		if err != nil {
 			continue
