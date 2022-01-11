@@ -176,8 +176,8 @@ func taskpush(m *pushmsg) {
 			scner = "masscan"
 			rate = 10000
 		}
-		scner = "masscan"
-		rate = 10000
+		//scner = "masscan"
+		//rate = 10000
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":     utils.Int64ToIp(i),
 			"scaner": scner,

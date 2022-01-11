@@ -235,7 +235,9 @@ func masscaner(target, rate string) []interface{} {
 	}
 	for i := 0; i < count; i++ {
 		tmp := <-datachan
-		data = append(data, tmp)
+		if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
+			data = append(data, tmp)
+		}
 	}
 	return data
 }
