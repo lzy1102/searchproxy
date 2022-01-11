@@ -168,15 +168,18 @@ func taskpush(m *pushmsg) {
 		}
 		log.Println(utils.Int64ToIp(i))
 		var scner string
-		if rand.Int31n(2) == 0 {
+		var rate int
+		if rand.Int63n(2) == 0 {
 			scner = "syn"
+			rate = 1000
 		} else {
 			scner = "masscan"
+			rate = 10000
 		}
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":     utils.Int64ToIp(i),
 			"scaner": scner,
-			"rate":   1000,
+			"rate":   rate,
 		})
 		if err != nil {
 			continue
