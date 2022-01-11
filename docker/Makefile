@@ -27,9 +27,8 @@ build_config:
 	rm -rf config/config
 build_pushmsg:
 	cp -rf ../bin/pushmsg pushmsg/
-	cp -rf ../bin/config.json config/
 	cd pushmsg;docker build -t pushmsg .;cd -;
-	rm -rf pushmsg/pushmsg pushmsg/config.json
+	rm -rf pushmsg/pushmsg
 build_scanproxy:
 	cp -rf ../bin/task scanproxy/
 	cp -rf ../bin/scanproxy scanproxy/
