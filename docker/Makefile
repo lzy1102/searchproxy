@@ -23,9 +23,8 @@ build_mq:
 	cd mq;docker build -t searchmq .;cd -;
 build_config:
 	cp -rf ../bin/config config/
-	cp -rf ../bin/config.json config/
 	cd config;docker build -t config .;cd -;
-	rm -rf config/config config/config.json
+	rm -rf config/config
 build_pushmsg:
 	cp -rf ../bin/pushmsg pushmsg/
 	cp -rf ../bin/config.json config/
