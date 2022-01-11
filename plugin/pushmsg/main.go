@@ -58,6 +58,44 @@ func getcount(topic, url string) int64 {
 	return 0
 }
 
+func istopic(topic, url string) bool {
+	resp, err := req.Get(url)
+	if err != nil {
+		return false
+	}
+	var data []interface{}
+	err = resp.ToJSON(&data)
+	if err != nil {
+		return false
+	}
+	for _, datum := range data {
+		tmp := datum.(map[string]interface{})
+		if name, ok := tmp["name"]; ok && name.(string) == topic {
+			return true
+		}
+	}
+	return false
+}
+
+func createtopic(topic, url string) {
+
+	headers := req.Header{
+		"Connection": "keep-alive",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+	}
+
+	data := req.Param{
+		"vhost":       "/",
+		"name":        topic,
+		"durable":     "true",
+		"auto_delete": false,
+		//"arguments":   req.Param{"x-queue-type": "classic"},
+	}
+
+	req.Put(url+topic, headers, req.BodyJSON(data))
+	//log.Println(response.Response().Status)
+}
+
 func ipfilter(ip string) bool {
 	matchString, err := regexp.MatchString("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}", ip)
 	if err != nil {
@@ -152,6 +190,9 @@ func taskpush(m *pushmsg) {
 func main() {
 	var msg pushmsg
 	config.Install().Get("mq", &msg)
+	if !istopic("scanproxy", msg.Getqueues) {
+		createtopic("scanproxy", msg.Getqueues)
+	}
 	taskpush(&msg)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
