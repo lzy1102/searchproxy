@@ -27,24 +27,25 @@ build_config:
 	rm -rf config/config
 build_pushmsg:
 	cp -rf ../bin/pushmsg pushmsg/
+	cp -rf ../bin/config pushmsg/
 	cd pushmsg;docker build -t pushmsg .;cd -;
-	rm -rf pushmsg/pushmsg
+	rm -rf pushmsg/pushmsg pushmsg/config.json
 build_scanproxy:
 	cp -rf ../bin/task scanproxy/
 	cp -rf ../bin/scanproxy scanproxy/
-	cp -rf ../bin/config.json config/
+	cp -rf ../bin/config.json scanproxy/
 	cd scanproxy;docker build -t scanproxy .;cd -;
 	rm -rf scanproxy/scanproxy scanproxy/task scanproxy/config.json
 build_save:
 	cp -rf ../bin/task save/
 	cp -rf ../bin/save save/
-	cp -rf ../bin/config.json config/
+	cp -rf ../bin/config.json save/
 	cd save;docker build -t save .;cd -;
 	rm -rf save/task save/save save/config.json
 play_config:
 	docker run --network searchproxy --name config-1 --restart=always -d config || exit 0
 play_db:
-	docker run --network searchproxy --name db-1 --restart=always -d searchdb || exit 0
+	docker run --network searchproxy --name db-1 --restart=always -p 27017:27017 -d searchdb || exit 0
 play_mq:
 	docker run --network searchproxy --name mq-1 --restart=always -p 15672:15672 -p 5672:5672 -d searchmq || exit 0
 play_cache:
