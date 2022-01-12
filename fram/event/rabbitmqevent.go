@@ -86,7 +86,7 @@ func (r *RabbitMqEvent) registerConsumer() (<-chan amqp.Delivery, error) {
 func (r *RabbitMqEvent) PublishMsg(topic string, msg []byte) {
 	q, err := r.producer.QueueDeclare(
 		topic, // name
-		false, // durable
+		true,  // durable
 		false, // delete when unused
 		false, // exclusive
 		false, // no-wait

@@ -91,6 +91,7 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 						}
 						nextMsg, err := json.Marshal(tmp)
 						utils.FatalAssert(err)
+						logs.Install().Infoln("投递给下级", v.Topic, "消息体", string(nextMsg))
 						pub.PublishMsg(v.Topic, nextMsg)
 					}
 				}
@@ -167,7 +168,6 @@ func (t *TaskEvent) execCommand(shell string) error {
 		//换行分隔
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			logs.Install().Errorln(err)
 			break
 		}
 		//打印内容
