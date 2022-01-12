@@ -52,16 +52,16 @@ func Install() *flagValue {
 	return f
 }
 
-func (f *flagValue) Get(path string, obj interface{}) {
+func (f flagValue) Get(path string, obj interface{}) {
 	out, err := json.Marshal(f.cfg[path])
 	utils.FatalAssert(err)
 	_ = json.Unmarshal(out, obj)
 }
 
-func (f *flagValue) Mod() bool {
+func (f flagValue) Mod() bool {
 	return f.mod
 }
 
-func (f *flagValue) GetScanName() string {
+func (f flagValue) GetScanName() string {
 	return f.scan
 }

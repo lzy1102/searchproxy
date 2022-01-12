@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"os"
@@ -18,14 +17,15 @@ type save struct {
 	cache    *db2.RedisClient
 }
 
-var sc save
-
-func init() {
-	flag.StringVar(&sc.datafile, "file", "datafile.json", "")
-	flag.Parse()
-}
+//func init() {
+//flag.StringVar(&sc.datafile, "file", "datafile.json", "")
+//flag.Parse()
+//}
 
 func main() {
+	sc := save{}
+	sc.datafile = os.Args[len(os.Args)-1]
+
 	bts, err := ioutil.ReadFile(sc.datafile)
 	utils.FatalAssert(err)
 	var data map[string]interface{}

@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"github.com/imroc/req"
 	"log"
-	"math/rand"
 	"net"
+	"os"
 	"regexp"
 	"strings"
-	"time"
 )
 
 func createtopic(topic, url string) {
@@ -92,10 +91,11 @@ func ipfilter(ip string) bool {
 }
 
 func main() {
-	rand.Seed(time.Now().Unix()) // unix 时间戳，秒
-	for {
-		data := rand.Int31n(2)
-		fmt.Println(data)
+	var cfgaddr string
+	flag.StringVar(&cfgaddr, "cfgaddr", "", "")
+	flag.Parse()
+	for i, arg := range os.Args {
+		log.Println(i, arg)
 	}
-
+	log.Println(cfgaddr)
 }
