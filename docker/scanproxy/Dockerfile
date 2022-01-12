@@ -8,4 +8,4 @@ COPY . /opt/
 WORKDIR /opt/
 RUN chmod +x *
 RUN rm -rf /opt/Dockerfile
-CMD ["./task", "-scan","scanproxy", "-mod","true"]
+CMD ["./task", "-scan","scanproxy", "-mod","true","-cfgaddr","config-1:8080"]

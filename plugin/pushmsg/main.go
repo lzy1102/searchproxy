@@ -199,13 +199,13 @@ func main() {
 	marshal, _ := json.Marshal(map[string]interface{}{
 		"ip":     "172.16.10.110",
 		"scaner": "masscan",
-		"rate":   1000,
+		"rate":   10,
 	})
-	//push("scanproxy", string(marshal), msg.Pushurl)
+	push("scanproxy", string(marshal), msg.Pushurl)
 	marshal, _ = json.Marshal(map[string]interface{}{
 		"ip":     "172.16.10.110",
 		"scaner": "syn",
-		"rate":   100,
+		"rate":   10,
 	})
 	push("scanproxy", string(marshal), msg.Pushurl)
 	//taskpush(&msg)

@@ -19,7 +19,7 @@
     "cmdkey": [],
     "cmd": "./save -file datafile.json",
     "out": "",
-    "next": [],
+    "next": []
   },
   "scanproxy": {
     "datafile": "",
