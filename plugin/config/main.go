@@ -7,19 +7,18 @@ import (
 )
 
 func main() {
+	readFile, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		return
+	}
+	var data map[string]interface{}
+	json.Unmarshal(readFile, &data)
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	app.GET("api/config/get", func(c *gin.Context) {
-		readFile, err := ioutil.ReadFile("config.json")
-		if err != nil {
-			return
-		}
-		var data map[string]interface{}
-		json.Unmarshal(readFile, &data)
 		c.JSON(200, data)
 	})
 	app.POST("api/config/set", func(c *gin.Context) {
-		var data map[string]interface{}
 		err := c.BindJSON(&data)
 		if err != nil {
 			return
@@ -30,7 +29,7 @@ func main() {
 		}
 		ioutil.WriteFile("config.json", marshal, 0777)
 	})
-	err := app.Run(":8080")
+	err = app.Run(":8080")
 	if err != nil {
 		return
 	}
