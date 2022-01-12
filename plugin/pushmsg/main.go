@@ -202,11 +202,17 @@ func main() {
 		"rate":   10000,
 	})
 	push("scanproxy", string(marshal), msg.Pushurl)
-	taskpush(&msg)
+	marshal, _ = json.Marshal(map[string]interface{}{
+		"ip":     "172.16.10.110",
+		"scaner": "syn",
+		"rate":   1000,
+	})
+	push("scanproxy", string(marshal), msg.Pushurl)
+	//taskpush(&msg)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
 		if getcount("scanproxy", msg.Getqueues) == 0 {
-			taskpush(&msg)
+			//taskpush(&msg)
 		}
 	}) // 给对象增加定时任务
 	c.Start()
