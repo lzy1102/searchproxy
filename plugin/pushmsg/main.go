@@ -199,7 +199,7 @@ func main() {
 	marshal, _ := json.Marshal(map[string]interface{}{
 		"ip":     "172.16.10.110",
 		"scaner": "masscan",
-		"rate":   10,
+		"rate":   1000,
 	})
 	push("scanproxy", string(marshal), msg.Pushurl)
 	marshal, _ = json.Marshal(map[string]interface{}{
