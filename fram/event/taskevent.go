@@ -1,6 +1,7 @@
 package event
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -139,17 +140,46 @@ func (t *TaskEvent) cmdKeys(data map[string]interface{}) (string, error) {
 
 func (t *TaskEvent) execCommand(shell string) error {
 	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
-	logs.Install().Info("开始执行 ", shell)
+
 	cmd := &exec.Cmd{}
 	if runtime.GOOS == "linux" {
 		cmd = exec.Command("sh", "-c", shell)
+		logs.Install().Info("开始执行 ", shell)
 	} else if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe", "/c", shell)
 		//cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	}
-	err := cmd.Run()
+
+	piper, err := cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
+	//开始执行命令
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+	//使用bufio包封装的方法实现对reader的读取
+	reader := bufio.NewReader(piper)
+	for {
+		//换行分隔
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		//打印内容
+		fmt.Println(line)
+	}
+	//等待命令结束并回收子进程资源等
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
+	//err := cmd.Run()
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
