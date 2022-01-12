@@ -165,11 +165,11 @@ func (t *TaskEvent) execCommand(shell string) error {
 		//换行分隔
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println(err)
+			logs.Install().Errorln(err)
 			break
 		}
 		//打印内容
-		fmt.Println(line)
+		logs.Install().Infoln(line)
 	}
 	//等待命令结束并回收子进程资源等
 	err = cmd.Wait()
