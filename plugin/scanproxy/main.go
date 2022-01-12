@@ -191,7 +191,7 @@ func masscaner(target, rate string) []interface{} {
 	// masscan可执行文件路径,默认不需要设置
 	//m.SetSystemPath("D:\\Program Files\\masscan/masscan.exe")
 	// 扫描端口范围
-	m.SetPorts("0-65535")
+	m.SetPorts("1-65535")
 	// 扫描IP范围
 	m.SetRanges(target)
 	// 扫描速率

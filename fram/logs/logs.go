@@ -15,7 +15,7 @@ func Install() *logrus.Logger {
 	on.Do(func() {
 		log = logrus.New()
 		if config.Install().Mod() {
-			log.SetFormatter(&logrus.JSONFormatter{
+			log.SetFormatter(&logrus.TextFormatter{
 				TimestampFormat: "2006-01-02 15:04:05", // 设置json里的日期输出格式
 			})
 			log.SetReportCaller(true)
@@ -27,7 +27,7 @@ func Install() *logrus.Logger {
 				MaxBackups: 5,
 				MaxAge:     30, //days
 			})
-		}else {
+		} else {
 			log.SetFormatter(&logrus.TextFormatter{
 				TimestampFormat: "2006-01-02 15:04:05", // 设置json里的日期输出格式
 			})

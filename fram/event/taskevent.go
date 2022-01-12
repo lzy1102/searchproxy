@@ -39,8 +39,9 @@ func NewTask(cfg *TaskConfig) (*TaskEvent, error) {
 }
 
 func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
-	if t.ecg.Out != ""{
+	if t.ecg.Out != "" {
 		_ = os.Remove(t.ecg.Out)
+		logs.Install().Infoln("删除输出文件", t.ecg.Out)
 	}
 	if t.ecg.Datafile != "" {
 		databts, err := json.Marshal(data)
@@ -51,10 +52,12 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 		if err != nil {
 			return nil
 		}
+		logs.Install().Infoln("写入数据源")
 	}
 	cmd, err := t.cmdKeys(data)
 	if err == nil {
 		err := t.execCommand(cmd)
+		logs.Install().Infoln("执行命令")
 		if err != nil {
 			return err
 		} else {
