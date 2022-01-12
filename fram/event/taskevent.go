@@ -41,10 +41,11 @@ func NewTask(cfg *TaskConfig) (*TaskEvent, error) {
 
 func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 	if t.ecg.Out != "" {
-		_ = os.Remove(t.ecg.Out)
+		_ = os.RemoveAll(t.ecg.Out)
 		logs.Install().Infoln("删除输出文件", t.ecg.Out)
 	}
 	if t.ecg.Datafile != "" {
+		_ = os.RemoveAll(t.ecg.Datafile)
 		databts, err := json.Marshal(data)
 		if err != nil {
 			return nil

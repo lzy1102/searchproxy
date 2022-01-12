@@ -189,13 +189,7 @@ func taskpush(m *pushmsg) {
 		push("scanproxy", string(marshal), m.Pushurl)
 	}
 }
-
-func main() {
-	var msg pushmsg
-	config.Install().Get("mq", &msg)
-	if !istopic("scanproxy", msg.Getqueues) {
-		createtopic("scanproxy", msg.Getqueues)
-	}
+func test(msg pushmsg) {
 	marshal, _ := json.Marshal(map[string]interface{}{
 		"ip":     "172.16.10.110",
 		"scaner": "masscan",
@@ -208,11 +202,19 @@ func main() {
 		"rate":   1000,
 	})
 	push("scanproxy", string(marshal), msg.Pushurl)
-	//taskpush(&msg)
+}
+func main() {
+	var msg pushmsg
+	config.Install().Get("mq", &msg)
+	if !istopic("scanproxy", msg.Getqueues) {
+		createtopic("scanproxy", msg.Getqueues)
+	}
+	//test(msg)
+	taskpush(&msg)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
 		if getcount("scanproxy", msg.Getqueues) == 0 {
-			//taskpush(&msg)
+			taskpush(&msg)
 		}
 	}) // 给对象增加定时任务
 	c.Start()
