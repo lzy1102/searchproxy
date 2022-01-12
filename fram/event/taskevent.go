@@ -58,13 +58,14 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 	cmd, err := t.cmdKeys(data)
 	if err == nil {
 		err := t.execCommand(cmd)
-		logs.Install().Infoln("执行命令")
+		logs.Install().Infoln("执行命令结束")
 		if err != nil {
+			logs.Install().Errorln("执行命令结束,错误，重投")
 			return err
 		} else {
 			bts, err := ioutil.ReadFile(t.ecg.Out)
 			if err != nil {
-				logs.Install().Infoln("扫描结果为空", t.ecg.TaskName)
+				logs.Install().Errorln("扫描结果为空", t.ecg.TaskName)
 				return nil
 			}
 			if strings.TrimSpace(string(bts)) == "" || strings.TrimSpace(string(bts)) == "null" {
@@ -72,6 +73,7 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 			}
 			var btsObj interface{}
 			utils.FatalAssert(json.Unmarshal(bts, &btsObj))
+			logs.Install().Infoln("读取扫描结果", btsObj)
 			if reflect.TypeOf(btsObj).Kind() == reflect.Slice {
 				for _, b := range btsObj.([]interface{}) {
 					tmp := b.(map[string]interface{})
@@ -169,11 +171,12 @@ func (t *TaskEvent) execCommand(shell string) error {
 			break
 		}
 		//打印内容
-		logs.Install().Infoln(line)
+		fmt.Println(line)
 	}
 	//等待命令结束并回收子进程资源等
 	err = cmd.Wait()
 	if err != nil {
+		logs.Install().Errorln(err)
 		return err
 	}
 
