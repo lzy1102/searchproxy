@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
-	"searchproxy/fram/config"
 	db2 "searchproxy/fram/db"
 	"searchproxy/fram/utils"
 )
@@ -28,9 +27,9 @@ func main() {
 	var data map[string]interface{}
 	utils.FatalAssert(json.Unmarshal(bts, &data))
 
-	var dbcfg db2.MongoConfig
-	config.Install().Get("mongo", &dbcfg)
-	sc.db = db2.NewMongo(&dbcfg)
+	//var dbcfg db2.MongoConfig
+	//config.Install().Get("mongo", &dbcfg)
+	//sc.db = db2.NewMongo(&dbcfg)
 
 	//var cachecfg db2.RedisConfig
 	//config.Install().Get("cache", &cachecfg)
