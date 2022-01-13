@@ -162,11 +162,12 @@ func ipfilter(ip string) bool {
 func taskpush(m *pushmsg) {
 	rand.Seed(time.Now().Unix())
 	for i := utils.Ip2Int64("1.0.0.0"); i < utils.Ip2Int64("255.255.255.255"); i++ {
-		if ipfilter(utils.Int64ToIp(i)) == false {
-			log.Println(utils.Int64ToIp(i), "continue")
+		ip := utils.Int64ToIp(i)
+		if ipfilter(ip) == false {
+			log.Println(ip, "continue")
 			continue
 		}
-		log.Println(utils.Int64ToIp(i))
+		log.Println(ip)
 		var scner string
 		var rate int
 		if rand.Int63n(2) == 0 {
@@ -179,7 +180,7 @@ func taskpush(m *pushmsg) {
 		//scner = "masscan"
 		//rate = 10000
 		marshal, err := json.Marshal(map[string]interface{}{
-			"ip":     utils.Int64ToIp(i),
+			"ip":     ip,
 			"scaner": scner,
 			"rate":   rate,
 		})
