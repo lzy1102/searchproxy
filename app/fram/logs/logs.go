@@ -4,7 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
-	"searchproxy/fram/config"
+	"searchproxy/app/fram/config"
 	"sync"
 )
 

@@ -5,16 +5,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"os"
-	"searchproxy/fram/config"
-	db2 "searchproxy/fram/db"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/config"
+	"searchproxy/app/fram/db"
+	"searchproxy/app/fram/utils"
 	"time"
 )
 
 type save struct {
 	datafile string
-	db       *db2.Models
-	cache    *db2.RedisClient
+	db       *db.Models
+	cache    *db.RedisClient
 }
 
 //func init() {
@@ -31,13 +31,13 @@ func main() {
 	var data map[string]interface{}
 	utils.FatalAssert(json.Unmarshal(bts, &data))
 
-	var dbcfg db2.MongoConfig
+	var dbcfg db.MongoConfig
 	config.Install().Get("mongo", &dbcfg)
-	sc.db = db2.NewMongo(&dbcfg)
+	sc.db = db.NewMongo(&dbcfg)
 
-	var cachecfg db2.RedisConfig
+	var cachecfg db.RedisConfig
 	config.Install().Get("cache", &cachecfg)
-	sc.cache = db2.NewRedis(&cachecfg)
+	sc.cache = db.NewRedis(&cachecfg)
 	if ipstr, ok := data["ip"]; ok {
 		data["ip"] = utils.Ip2Int64(ipstr.(string))
 	}

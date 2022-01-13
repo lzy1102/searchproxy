@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"reflect"
 	"runtime"
-	"searchproxy/fram/logs"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/logs"
+	"searchproxy/app/fram/utils"
 	"strings"
 )
 

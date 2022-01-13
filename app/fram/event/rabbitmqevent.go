@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
-	"searchproxy/fram/logs"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/logs"
+	"searchproxy/app/fram/utils"
 )
 
 type PublishConfig struct {

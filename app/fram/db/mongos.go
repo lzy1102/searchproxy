@@ -7,8 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"searchproxy/fram/config"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/config"
+	"searchproxy/app/fram/utils"
 	"sync"
 )
 
@@ -29,7 +29,7 @@ func MongoInstance() *Models {
 	dance.Do(func() {
 		db = Models{}
 		var mg MongoConfig
-		config.Install().Get("mongo",&mg)
+		config.Install().Get("mongo", &mg)
 		db.config = &mg
 		clientOptions := options.Client().ApplyURI(db.config.Uri)
 		client, err := mongo.Connect(context.Background(), clientOptions)
@@ -41,7 +41,7 @@ func MongoInstance() *Models {
 	return &db
 }
 
-func NewMongo(cfg *MongoConfig) *Models  {
+func NewMongo(cfg *MongoConfig) *Models {
 	db = Models{}
 	db.config = cfg
 	clientOptions := options.Client().ApplyURI(db.config.Uri)
@@ -53,14 +53,14 @@ func NewMongo(cfg *MongoConfig) *Models  {
 	return &db
 }
 
-func (m Models) Close()  {
+func (m Models) Close() {
 	err := m.database.Client().Disconnect(context.Background())
 	if err != nil {
 		return
 	}
 }
 
-func (m Models) FindOne(table string, filter interface{}, result interface{} ) error {
+func (m Models) FindOne(table string, filter interface{}, result interface{}) error {
 	//var result models.User
 	err := m.database.Collection(table).FindOne(context.Background(), filter).Decode(result)
 	if err != nil {
@@ -90,7 +90,7 @@ func (m Models) Aggregate(table string, pipeline interface{}, result *[]interfac
 	return nil
 }
 
-func (m Models) FindSort(table string, filter interface{}, result *[]interface{}, sort interface{} ) error {
+func (m Models) FindSort(table string, filter interface{}, result *[]interface{}, sort interface{}) error {
 	findOptions := options.Find()
 	findOptions.SetSort(sort)
 	//findOptions.SetLimit(limit)
@@ -111,7 +111,7 @@ func (m Models) FindSort(table string, filter interface{}, result *[]interface{}
 	return nil
 }
 
-func (m Models) FindMany(table string, filter interface{}, result *[]interface{} ) error {
+func (m Models) FindMany(table string, filter interface{}, result *[]interface{}) error {
 	cur, err := m.database.Collection(table).Find(context.Background(), filter)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func (m Models) FindMany(table string, filter interface{}, result *[]interface{}
 	return nil
 }
 
-func (m Models) FindManyLimit(table string, filter interface{}, result *[]interface{} , limit, skip int64) error {
+func (m Models) FindManyLimit(table string, filter interface{}, result *[]interface{}, limit, skip int64) error {
 	findOptions := options.Find()
 	findOptions.SetLimit(limit)
 	findOptions.SetSkip(skip)
@@ -212,7 +212,6 @@ func (m Models) DeleteMany(table string, filter interface{}) error {
 	return nil
 }
 
-
 func (m Models) getGridfsBucket(collName string) *gridfs.Bucket {
 	var bucket *gridfs.Bucket
 	// 使用默认文件集合名称
@@ -260,6 +259,6 @@ func (m Models) GridfsDelete(collName, fileID string) error {
 	return nil
 }
 
-func (m Models) CountDocuments(table string, filter interface{},) (int64,error)  {
+func (m Models) CountDocuments(table string, filter interface{}) (int64, error) {
 	return m.database.Collection(table).CountDocuments(context.TODO(), filter)
 }

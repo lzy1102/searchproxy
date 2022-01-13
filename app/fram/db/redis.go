@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"reflect"
-	"searchproxy/fram/config"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/config"
+	"searchproxy/app/fram/utils"
 	"sync"
 	"time"
 )

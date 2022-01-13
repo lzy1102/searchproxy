@@ -7,7 +7,7 @@ import (
 	"github.com/imroc/req"
 	"io/ioutil"
 	"os"
-	"searchproxy/fram/utils"
+	"searchproxy/app/fram/utils"
 	"sync"
 )
 
