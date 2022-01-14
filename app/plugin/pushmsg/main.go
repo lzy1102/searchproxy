@@ -186,7 +186,6 @@ func taskpush(m *pushmsg) {
 		if err != nil {
 			continue
 		}
-		logs.Install().Infoln(getcount("scanproxy", m.Getqueues))
 		for getcount("scanproxy", m.Getqueues) > 100 {
 			logs.Install().Infoln("循环等待")
 			time.Sleep(10 * time.Second)
