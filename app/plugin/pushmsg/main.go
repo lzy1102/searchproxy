@@ -161,7 +161,7 @@ func ipfilter(ip string) bool {
 
 func taskpush(m *pushmsg) {
 	rand.Seed(time.Now().Unix())
-	for i := utils.Ip2Int64("1.0.0.0"); i < utils.Ip2Int64("255.255.255.255"); i++ {
+	for i := utils.Ip2Int64("1.1.1.1"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		ip := utils.Int64ToIp(i)
 		if ipfilter(ip) == false {
 			log.Println(ip, "continue")
