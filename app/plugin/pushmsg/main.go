@@ -10,6 +10,7 @@ import (
 	"net"
 	"regexp"
 	"searchproxy/app/fram/config"
+	"searchproxy/app/fram/logs"
 	"searchproxy/app/fram/utils"
 	"strconv"
 	"strings"
@@ -164,10 +165,10 @@ func taskpush(m *pushmsg) {
 	for i := utils.Ip2Int64("1.1.1.1"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		ip := utils.Int64ToIp(i)
 		if ipfilter(ip) == false {
-			log.Println(ip, "continue")
+			logs.Install().Infoln(ip, "continue")
 			continue
 		}
-		log.Println(ip)
+		logs.Install().Infoln(ip)
 		var scner string
 		var rate int
 		if rand.Int63n(2) == 0 {
@@ -185,9 +186,9 @@ func taskpush(m *pushmsg) {
 		if err != nil {
 			continue
 		}
-		log.Println(getcount("scanproxy", m.Getqueues))
+		logs.Install().Infoln(getcount("scanproxy", m.Getqueues))
 		for getcount("scanproxy", m.Getqueues) > 100 {
-			log.Println("循环等待")
+			logs.Install().Infoln("循环等待")
 			time.Sleep(10 * time.Second)
 		}
 		push("scanproxy", string(marshal), m.Pushurl)
