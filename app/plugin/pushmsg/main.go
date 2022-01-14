@@ -160,7 +160,7 @@ func ipfilter(ip string) bool {
 	return false
 }
 
-func taskpush(m *pushmsg) {
+func taskpush(m *pushmsg, ports string) {
 	rand.Seed(time.Now().Unix())
 	for i := utils.Ip2Int64("1.1.1.1"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		ip := utils.Int64ToIp(i)
@@ -171,7 +171,6 @@ func taskpush(m *pushmsg) {
 		logs.Install().Infoln(ip)
 		var scner string
 		var rate int
-		ports := "1080,1081,3121,3128,8000,8080,8081,8090,8321,9000,9080,9150,9151,10001,10028,10029,10086,11180,10808,10809,18081,28181,32002,20003,20002,10017,18281"
 		if rand.Int63n(2) == 0 {
 			scner = "syn"
 			rate = 1000
@@ -212,15 +211,26 @@ func test(msg pushmsg) {
 func main() {
 	var msg pushmsg
 	config.Install().Get("mq", &msg)
+	var portlist []interface{}
+	config.Install().Get("ports", &portlist)
+	var ports string
+	for _, v := range portlist {
+		if ports == "" {
+			ports = fmt.Sprintf("%v", v)
+		} else {
+			ports = fmt.Sprintf("%v,%v", ports, v)
+		}
+
+	}
 	if !istopic("scanproxy", msg.Getqueues) {
 		createtopic("scanproxy", msg.Getqueues)
 	}
 	//test(msg)
-	taskpush(&msg)
+	taskpush(&msg, ports)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
 		if getcount("scanproxy", msg.Getqueues) == 0 {
-			taskpush(&msg)
+			taskpush(&msg, ports)
 		}
 	}) // 给对象增加定时任务
 	c.Start()

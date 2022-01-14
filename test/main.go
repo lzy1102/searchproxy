@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"searchproxy/app/fram/config"
+)
 
 func fib(n int) int {
 	if n < 2 {
@@ -10,9 +13,15 @@ func fib(n int) int {
 	}
 }
 func main() {
-	num := 0
-	for num < 10 {
-		log.Println(num)
-		num++
+	var portlist []interface{}
+	config.Install().Get("ports", &portlist)
+	var ports string
+	for _, v := range portlist {
+		if ports == "" {
+			ports = fmt.Sprintf("%v", v)
+		} else {
+			ports = fmt.Sprintf("%v,%v", ports, v)
+		}
+
 	}
 }
