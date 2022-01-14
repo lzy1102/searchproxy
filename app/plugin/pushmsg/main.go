@@ -185,7 +185,10 @@ func taskpush(m *pushmsg) {
 		if err != nil {
 			continue
 		}
-		for getcount("scanproxy", m.Getqueues) > 10 {
+		time.Sleep(1 * time.Second)
+		log.Println(getcount("scanproxy", m.Getqueues))
+		for getcount("scanproxy", m.Getqueues) > 100 {
+			log.Println("循环等待")
 			time.Sleep(10 * time.Second)
 		}
 		push("scanproxy", string(marshal), m.Pushurl)

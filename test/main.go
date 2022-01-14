@@ -11,7 +11,7 @@ func fib(n int) int {
 }
 func main() {
 	num := 0
-	for num > 10 {
+	for num < 10 {
 		log.Println(num)
 		num++
 	}
