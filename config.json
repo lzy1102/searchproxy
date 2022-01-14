@@ -27,9 +27,10 @@
     "cmdkey": [
       "ip",
       "rate",
-      "scaner"
+      "scaner",
+      "ports"
     ],
-    "cmd": "./scanproxy -ip {ip} -rate {rate} -scaner {scaner} -out out.json",
+    "cmd": "./scanproxy -ip {ip} -rate {rate} -scaner {scaner} -ports {ports} -out out.json",
     "out": "out.json",
     "next": [
       {

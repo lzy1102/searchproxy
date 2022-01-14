@@ -150,20 +150,24 @@ func tcpshaker(ip string, port int) bool {
 	return false
 }
 
-func synscan(ip string, rate int) (result []interface{}) {
+func synscan(ip, ports string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
-	bar := pb.StartNew(65535)
-	for i := 1; i <= 65535; i++ {
+	portlist := strings.Split(strings.TrimSpace(ports), ",")
+	bar := pb.StartNew(len(portlist))
+	for _, p := range portlist {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
-		go func(host string, port int) {
-			//portstatus := socketdial(host, port)
-			portstatus := tcpshaker(host, port)
+		go func(host, port string) {
+			atoi, err := strconv.Atoi(port)
+			if err != nil {
+				return
+			}
+			portstatus := tcpshaker(host, atoi)
 			proxystatus, isgoogle, protocol := false, false, ""
 			if portstatus == true {
 				log.Println("port", port, "status", portstatus)
-				proxystatus, isgoogle, protocol = scanproxy(host, port)
+				proxystatus, isgoogle, protocol = scanproxy(host, atoi)
 			}
 			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
@@ -174,9 +178,9 @@ func synscan(ip string, rate int) (result []interface{}) {
 				"google":   isgoogle,
 				"protocol": protocol,
 			}
-		}(ip, i)
+		}(ip, p)
 	}
-	for i := 1; i <= 65535; i++ {
+	for range portlist {
 		tmp := <-datachan
 		if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
 			result = append(result, tmp)
@@ -186,12 +190,12 @@ func synscan(ip string, rate int) (result []interface{}) {
 	return result
 }
 
-func masscaner(target, rate string) []interface{} {
+func masscaner(target, ports, rate string) []interface{} {
 	m := masscan.New()
 	// masscan可执行文件路径,默认不需要设置
 	//m.SetSystemPath("D:\\Program Files\\masscan/masscan.exe")
 	// 扫描端口范围
-	m.SetPorts("1-65535")
+	m.SetPorts(ports)
 	// 扫描IP范围
 	m.SetRanges(target)
 	// 扫描速率
@@ -246,6 +250,7 @@ type info struct {
 	ip     string
 	rate   int
 	scaner string
+	ports  string
 	out    string
 }
 
@@ -255,6 +260,7 @@ func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
 	flag.IntVar(&myinfo.rate, "rate", 1000, "thread number")
 	flag.StringVar(&myinfo.scaner, "scaner", "syn", "scan name")
+	flag.StringVar(&myinfo.ports, "ports", "1080", "port list")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
@@ -265,9 +271,9 @@ func init() {
 func main() {
 	var result []interface{}
 	if myinfo.scaner == "syn" {
-		result = synscan(myinfo.ip, myinfo.rate)
+		result = synscan(myinfo.ip, myinfo.ports, myinfo.rate)
 	} else if myinfo.scaner == "masscan" {
-		result = masscaner(myinfo.ip, fmt.Sprintf("%v", myinfo.rate))
+		result = masscaner(myinfo.ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))
 	}
 	if result != nil {
 		out, err := json.Marshal(result)

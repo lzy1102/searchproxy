@@ -171,6 +171,7 @@ func taskpush(m *pushmsg) {
 		logs.Install().Infoln(ip)
 		var scner string
 		var rate int
+		ports := "1080,1081,3121,3128,8000,8080,8081,8090,8321,9000,9080,9150,9151,10001,10028,10029,10086,11180,10808,10809,18081,28181,32002,20003,20002,10017,18281"
 		if rand.Int63n(2) == 0 {
 			scner = "syn"
 			rate = 1000
@@ -182,6 +183,7 @@ func taskpush(m *pushmsg) {
 			"ip":     ip,
 			"scaner": scner,
 			"rate":   rate,
+			"ports":  ports,
 		})
 		if err != nil {
 			continue
