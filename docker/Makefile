@@ -9,6 +9,8 @@ clean:
     				scanproxy-1 \
     				scanproxy-2 \
     				scanproxy-3 \
+					scanproxy-4 \
+    				scanproxy-5 \
     				save-1 \
     				config-1 \
     				pushmsg-1 | xargs docker rm || exit 0
