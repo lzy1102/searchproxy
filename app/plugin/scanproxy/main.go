@@ -275,7 +275,7 @@ func main() {
 	} else if myinfo.scaner == "masscan" {
 		result = masscaner(myinfo.ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))
 	}
-	if result != nil {
+	if result != nil && len(result) > 0 {
 		out, err := json.Marshal(result)
 		if err == nil {
 			_ = ioutil.WriteFile(myinfo.out, out, 0777)
