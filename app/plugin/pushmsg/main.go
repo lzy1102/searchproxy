@@ -177,8 +177,6 @@ func taskpush(m *pushmsg) {
 			scner = "masscan"
 			rate = 10000
 		}
-		//scner = "masscan"
-		//rate = 10000
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":     ip,
 			"scaner": scner,
@@ -186,6 +184,9 @@ func taskpush(m *pushmsg) {
 		})
 		if err != nil {
 			continue
+		}
+		for getcount("scanproxy", m.Getqueues) <= 10 {
+			time.Sleep(10 * time.Second)
 		}
 		push("scanproxy", string(marshal), m.Pushurl)
 	}
