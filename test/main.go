@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
+import "log"
 
 func fib(n int) int {
 	if n < 2 {
@@ -13,8 +10,9 @@ func fib(n int) int {
 	}
 }
 func main() {
-	starttime := time.Now().Unix()
-	fmt.Println("计算结果", fib(42))
-	endtime := time.Now().Unix()
-	fmt.Println("耗时", endtime-starttime, "秒")
+	num := 0
+	for num > 10 {
+		log.Println(num)
+		num++
+	}
 }
