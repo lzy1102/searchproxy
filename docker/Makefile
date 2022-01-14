@@ -58,6 +58,8 @@ play_localscan:
 	docker run --name scanproxy-1 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-2 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-3 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-4 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-5 --restart=always -e MOD=0 -d scanproxy || exit 0
 play_save:
 	docker run --network searchproxy --name save-1 --restart=always -d save || exit 0
 play_pushmsg:
