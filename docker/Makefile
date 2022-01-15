@@ -11,6 +11,11 @@ clean:
     				scanproxy-3 \
 					scanproxy-4 \
     				scanproxy-5 \
+					scanproxy-6 \
+                    scanproxy-7 \
+                    scanproxy-8 \
+                    scanproxy-9 \
+                    scanproxy-0 \
     				save-1 \
     				config-1 \
     				pushmsg-1 | xargs docker rm || exit 0
@@ -62,6 +67,11 @@ play_localscan:
 	docker run --name scanproxy-3 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-4 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-5 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-6 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-7 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-8 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-9 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-0 --restart=always -e MOD=0 -d scanproxy || exit 0
 play_save:
 	docker run --network searchproxy --name save-1 --restart=always -d save || exit 0
 play_pushmsg:
