@@ -153,21 +153,36 @@ func tcpshaker(ip string, port int) bool {
 func synscan(ip, ports string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
-	portlist := strings.Split(strings.TrimSpace(ports), ",")
+	var portlist []int
+	for _, v := range strings.Split(strings.TrimSpace(ports), ",") {
+		if strings.Contains(strings.TrimSpace(v), "-") {
+			tmp := strings.Split(v, "-")
+			startport, err := strconv.Atoi(tmp[0])
+			endport, err := strconv.Atoi(tmp[len(tmp)-1])
+			if err != nil {
+				continue
+			}
+			for i := startport; i <= endport; i++ {
+				portlist = append(portlist, i)
+			}
+		} else {
+			atoi, err := strconv.Atoi(v)
+			if err != nil {
+				continue
+			}
+			portlist = append(portlist, atoi)
+		}
+	}
 	bar := pb.StartNew(len(portlist))
 	for _, p := range portlist {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		bar.Increment()
-		go func(host, port string) {
-			atoi, err := strconv.Atoi(port)
-			if err != nil {
-				return
-			}
-			portstatus := tcpshaker(host, atoi)
+		go func(host string, port int) {
+			portstatus := tcpshaker(host, port)
 			proxystatus, isgoogle, protocol := false, false, ""
 			if portstatus == true {
 				log.Println("port", port, "status", portstatus)
-				proxystatus, isgoogle, protocol = scanproxy(host, atoi)
+				proxystatus, isgoogle, protocol = scanproxy(host, port)
 			}
 			<-ratechan // 执行完毕，释放资源
 			datachan <- map[string]interface{}{
