@@ -160,7 +160,7 @@ func ipfilter(ip string) bool {
 	return false
 }
 
-func taskpush(m *pushmsg, ports string) {
+func taskpush(m *pushmsg) {
 	rand.Seed(time.Now().Unix())
 	for i := utils.Ip2Int64("1.1.1.1"); i < utils.Ip2Int64("255.255.255.255"); i++ {
 		ip := utils.Int64ToIp(i)
@@ -178,6 +178,17 @@ func taskpush(m *pushmsg, ports string) {
 			scner = "masscan"
 			rate = 10000
 		}
+		var portlist []interface{}
+		config.Install().Get("ports", &portlist)
+		var ports string
+		for _, v := range portlist {
+			if ports == "" {
+				ports = fmt.Sprintf("%v", v)
+			} else {
+				ports = fmt.Sprintf("%v,%v", ports, v)
+			}
+
+		}
 		marshal, err := json.Marshal(map[string]interface{}{
 			"ip":     ip,
 			"scaner": scner,
@@ -189,7 +200,7 @@ func taskpush(m *pushmsg, ports string) {
 		}
 		for getcount("scanproxy", m.Getqueues) > 100 {
 			logs.Install().Infoln("循环等待")
-			time.Sleep(10 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 		push("scanproxy", string(marshal), m.Pushurl)
 	}
@@ -211,26 +222,16 @@ func test(msg pushmsg) {
 func main() {
 	var msg pushmsg
 	config.Install().Get("mq", &msg)
-	var portlist []interface{}
-	config.Install().Get("ports", &portlist)
-	var ports string
-	for _, v := range portlist {
-		if ports == "" {
-			ports = fmt.Sprintf("%v", v)
-		} else {
-			ports = fmt.Sprintf("%v,%v", ports, v)
-		}
 
-	}
 	if !istopic("scanproxy", msg.Getqueues) {
 		createtopic("scanproxy", msg.Getqueues)
 	}
 	//test(msg)
-	taskpush(&msg, ports)
+	taskpush(&msg)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
 		if getcount("scanproxy", msg.Getqueues) == 0 {
-			taskpush(&msg, ports)
+			taskpush(&msg)
 		}
 	}) // 给对象增加定时任务
 	c.Start()

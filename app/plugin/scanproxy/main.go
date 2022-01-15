@@ -18,10 +18,12 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"searchproxy/app/fram/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -283,13 +285,39 @@ func init() {
 	}
 }
 
+func getallip(ip string) []string {
+	iplist := make([]string, 0)
+	if strings.Contains(ip, "/") {
+		tmp := strings.Split(ip, "/")
+		atoi, err := strconv.Atoi(tmp[1])
+		if err != nil {
+			return []string{}
+		}
+		maxhost := int(math.Pow(float64(2), float64(32-atoi+1))) - 2
+		minip := tmp[0]
+		tmpip := strings.Split(tmp[0], ".")
+		hostid, err := strconv.Atoi(tmpip[3])
+		if err != nil {
+			return []string{}
+		}
+		maxip := fmt.Sprintf("%v.%v.%v.%v", tmpip[0], tmpip[1], tmpip[2], hostid+maxhost)
+		iplist = utils.GetIpAll(minip, maxip)
+	} else {
+		iplist = append(iplist, ip)
+	}
+	return iplist
+}
+
 func main() {
 	var result []interface{}
-	if myinfo.scaner == "syn" {
-		result = synscan(myinfo.ip, myinfo.ports, myinfo.rate)
-	} else if myinfo.scaner == "masscan" {
-		result = masscaner(myinfo.ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))
+	for _, ip := range getallip(myinfo.ip) {
+		if myinfo.scaner == "syn" {
+			result = append(result, synscan(ip, myinfo.ports, myinfo.rate)...)
+		} else if myinfo.scaner == "masscan" {
+			result = append(result, masscaner(ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))...)
+		}
 	}
+
 	if result != nil && len(result) > 0 {
 		out, err := json.Marshal(result)
 		if err == nil {
