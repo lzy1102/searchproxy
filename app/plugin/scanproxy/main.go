@@ -155,6 +155,7 @@ func tcpshaker(ip string, port int) bool {
 func synscan(ip, ports string, rate int) (result []interface{}) {
 	ratechan := make(chan interface{}, rate) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
+	iplist := getallip(ip)
 	var portlist []int
 	for _, v := range strings.Split(strings.TrimSpace(ports), ",") {
 		if strings.Contains(strings.TrimSpace(v), "-") {
@@ -175,32 +176,36 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 			portlist = append(portlist, atoi)
 		}
 	}
-	bar := pb.StartNew(len(portlist))
-	for _, p := range portlist {
-		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
-		bar.Increment()
-		go func(host string, port int) {
-			portstatus := tcpshaker(host, port)
-			proxystatus, isgoogle, protocol := false, false, ""
-			if portstatus == true {
-				log.Println("port", port, "status", portstatus)
-				proxystatus, isgoogle, protocol = scanproxy(host, port)
-			}
-			<-ratechan // 执行完毕，释放资源
-			datachan <- map[string]interface{}{
-				"ip":       host,
-				"port":     port,
-				"status":   portstatus,
-				"proxy":    proxystatus,
-				"google":   isgoogle,
-				"protocol": protocol,
-			}
-		}(ip, p)
+	bar := pb.StartNew(len(portlist) * len(iplist))
+	for _, s := range iplist {
+		for _, p := range portlist {
+			ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
+			bar.Increment()
+			go func(host string, port int) {
+				portstatus := tcpshaker(host, port)
+				proxystatus, isgoogle, protocol := false, false, ""
+				if portstatus == true {
+					log.Println("port", port, "status", portstatus)
+					proxystatus, isgoogle, protocol = scanproxy(host, port)
+				}
+				<-ratechan // 执行完毕，释放资源
+				datachan <- map[string]interface{}{
+					"ip":       host,
+					"port":     port,
+					"status":   portstatus,
+					"proxy":    proxystatus,
+					"google":   isgoogle,
+					"protocol": protocol,
+				}
+			}(s, p)
+		}
 	}
-	for range portlist {
-		tmp := <-datachan
-		if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
-			result = append(result, tmp)
+	for _ = range iplist {
+		for range portlist {
+			tmp := <-datachan
+			if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
+				result = append(result, tmp)
+			}
 		}
 	}
 	bar.Finish()
@@ -310,12 +315,11 @@ func getallip(ip string) []string {
 
 func main() {
 	var result []interface{}
-	for _, ip := range getallip(myinfo.ip) {
-		if myinfo.scaner == "syn" {
-			result = append(result, synscan(ip, myinfo.ports, myinfo.rate)...)
-		} else if myinfo.scaner == "masscan" {
-			result = append(result, masscaner(ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))...)
-		}
+
+	if myinfo.scaner == "syn" {
+		result = synscan(myinfo.ip, myinfo.ports, myinfo.rate)
+	} else if myinfo.scaner == "masscan" {
+		result = masscaner(myinfo.ip, myinfo.ports, fmt.Sprintf("%v", myinfo.rate))
 	}
 
 	if result != nil && len(result) > 0 {
