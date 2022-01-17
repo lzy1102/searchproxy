@@ -10,6 +10,7 @@ import (
 	"net"
 	"regexp"
 	"searchproxy/app/fram/config"
+	"searchproxy/app/fram/db"
 	"searchproxy/app/fram/logs"
 	"searchproxy/app/fram/utils"
 	"strconv"
@@ -160,9 +161,19 @@ func ipfilter(ip string) bool {
 	return false
 }
 
-func taskpush(m *pushmsg) {
+func taskpush(m *pushmsg, cache *db.RedisClient) {
 	rand.Seed(time.Now().Unix())
-	for i := utils.Ip2Int64("1.1.1.1"); i < utils.Ip2Int64("255.255.255.255"); i++ {
+	var startip int64
+	get, err := cache.Get("scanip")
+	if err != nil {
+		startip = utils.Ip2Int64("1.1.1.1")
+	} else {
+		startip, err = strconv.ParseInt(get, 10, 64)
+		if err != nil {
+			startip = utils.Ip2Int64("1.1.1.1")
+		}
+	}
+	for i := startip; i < utils.Ip2Int64("255.255.255.255"); i++ {
 		ip := utils.Int64ToIp(i)
 		if ipfilter(ip) == false {
 			logs.Install().Infoln(ip, "continue")
@@ -203,6 +214,7 @@ func taskpush(m *pushmsg) {
 			time.Sleep(1 * time.Second)
 		}
 		push("scanproxy", string(marshal), m.Pushurl)
+		cache.Set("scanip", i, time.Hour*99999)
 	}
 }
 func test(msg pushmsg) {
@@ -223,15 +235,19 @@ func main() {
 	var msg pushmsg
 	config.Install().Get("mq", &msg)
 
+	var cachecfg db.RedisConfig
+	config.Install().Get("cache", &cachecfg)
+	cache := db.NewRedis(&cachecfg)
+
 	if !istopic("scanproxy", msg.Getqueues) {
 		createtopic("scanproxy", msg.Getqueues)
 	}
 	//test(msg)
-	taskpush(&msg)
+	taskpush(&msg, cache)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
 		if getcount("scanproxy", msg.Getqueues) == 0 {
-			taskpush(&msg)
+			taskpush(&msg, cache)
 		}
 	}) // 给对象增加定时任务
 	c.Start()
