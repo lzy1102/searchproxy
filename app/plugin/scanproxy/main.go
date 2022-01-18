@@ -180,7 +180,7 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 	for _, s := range iplist {
 		for _, p := range portlist {
 			ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
-			bar.Increment()
+
 			go func(host string, port int) {
 				portstatus := tcpshaker(host, port)
 				proxystatus, isgoogle, protocol := false, false, ""
@@ -206,6 +206,7 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 			if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
 				result = append(result, tmp)
 			}
+			bar.Increment()
 		}
 	}
 	bar.Finish()
