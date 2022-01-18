@@ -188,6 +188,7 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 					log.Println("port", port, "status", portstatus)
 					proxystatus, isgoogle, protocol = scanproxy(host, port)
 				}
+				bar.Increment()
 				<-ratechan // 执行完毕，释放资源
 				datachan <- map[string]interface{}{
 					"ip":       host,
@@ -206,7 +207,7 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 			if proxystatus, ok := tmp.(map[string]interface{})["proxy"]; ok && proxystatus.(bool) {
 				result = append(result, tmp)
 			}
-			bar.Increment()
+			//bar.Increment()
 		}
 	}
 	bar.Finish()
