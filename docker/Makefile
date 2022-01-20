@@ -1,6 +1,6 @@
 all: clean build play
 
-build: build_network build_db build_cache build_mq build_config build_pushmsg build_save build_scanproxy
+build: build_network build_db build_cache build_mq build_config build_pushmsg build_save build_scanproxy build_scanport build_proxyscan
 play: play_mq play_db play_cache play_config play_pushmsg play_save
 clean:
 	docker stop mq-1 \
