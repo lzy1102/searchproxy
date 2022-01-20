@@ -16,6 +16,16 @@ clean:
                     scanproxy-8 \
                     scanproxy-9 \
                     scanproxy-0 \
+                    scanport-1 \
+                    scanport-2 \
+                    scanport-3 \
+                    scanport-4 \
+                    scanport-5 \
+                    proxyscan-1 \
+                    proxyscan-2 \
+                    proxyscan-3 \
+                    proxyscan-4 \
+                    proxyscan-5 \
     				save-1 \
     				config-1 \
     				pushmsg-1 | xargs docker rm || exit 0
