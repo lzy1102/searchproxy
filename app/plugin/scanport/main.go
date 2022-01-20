@@ -84,7 +84,7 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 			}(s, p)
 		}
 	}
-	for _ = range iplist {
+	for range iplist {
 		for range portlist {
 			tmp := <-datachan
 			if proxystatus, ok := tmp.(map[string]interface{})["status"]; ok && proxystatus.(bool) {
