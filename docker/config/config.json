@@ -40,6 +40,42 @@
       }
     ]
   },
+  "scanport": {
+    "datafile": "",
+    "taskname": "scanport",
+    "cmdkey": [
+      "ip",
+      "rate",
+      "scaner",
+      "ports"
+    ],
+    "cmd": "./scanport -ip {ip} -rate {rate} -scaner {scaner} -ports {ports} -out out.json",
+    "out": "out.json",
+    "next": [
+      {
+        "topic": "proxyscan",
+        "carry": [],
+        "give": {}
+      }
+    ]
+  },
+  "proxyscan": {
+    "datafile": "",
+    "taskname": "proxyscan",
+    "cmdkey": [
+      "ip",
+      "port"
+    ],
+    "cmd": "./proxyscan -ip {ip} -port {port} -out out.json",
+    "out": "out.json",
+    "next": [
+      {
+        "topic": "save",
+        "carry": [],
+        "give": {}
+      }
+    ]
+  },
   "ports": [
     1080,
     1081,

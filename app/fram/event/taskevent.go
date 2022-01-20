@@ -85,7 +85,7 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 								tmp[k] = carryVul
 							}
 						}
-						tmp["taskname"] = t.ecg.TaskName
+						//tmp["taskname"] = t.ecg.TaskName
 						// 额外参数
 						for gk, gv := range v.Give {
 							tmp[gk] = gv
@@ -98,7 +98,7 @@ func (t *TaskEvent) Action(data map[string]interface{}, pub Publish) error {
 				}
 			} else {
 				for _, v := range t.ecg.Next {
-					btsObj.(map[string]interface{})["taskname"] = t.ecg.TaskName
+					//btsObj.(map[string]interface{})["taskname"] = t.ecg.TaskName
 					for _, k := range v.Carry {
 						if carryVul, ok := data[k]; ok {
 							btsObj.(map[string]interface{})[k] = carryVul

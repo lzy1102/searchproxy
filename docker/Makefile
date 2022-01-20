@@ -43,6 +43,18 @@ build_scanproxy:
 	cp -rf ../bin/config.json scanproxy/
 	cd scanproxy;docker build -t scanproxy .;cd -;
 	rm -rf scanproxy/scanproxy scanproxy/task scanproxy/config.json
+build_scanport:
+	cp -rf ../bin/task scanport/
+	cp -rf ../bin/scanport scanport/
+	cp -rf ../bin/config.json scanport/
+	cd scanport;docker build -t scanport .;cd -;
+	rm -rf scanport/scanport scanport/task scanport/config.json
+build_proxyscan:
+	cp -rf ../bin/task proxyscan/
+	cp -rf ../bin/proxyscan proxyscan/
+	cp -rf ../bin/config.json proxyscan/
+	cd proxyscan;docker build -t proxyscan .;cd -;
+	rm -rf proxyscan/proxyscan proxyscan/task proxyscan/config.json
 build_save:
 	cp -rf ../bin/task save/
 	cp -rf ../bin/save save/
@@ -57,6 +69,14 @@ play_mq:
 	docker run --network searchproxy --name mq-1 --restart=always -p 5672:5672 -d searchmq || exit 0
 play_cache:
 	docker run --network searchproxy --name cache-1 --restart=always -d searchcache || exit 0
+play_scanport:
+	docker run --network searchproxy --name scanport-1 --restart=always -d scanport || exit 0
+	docker run --network searchproxy --name scanport-2 --restart=always -d scanport || exit 0
+	docker run --network searchproxy --name scanport-3 --restart=always -d scanport || exit 0
+play_proxyscan:
+	docker run --network searchproxy --name proxyscan-1 --restart=always -d proxyscan || exit 0
+	docker run --network searchproxy --name proxyscan-2 --restart=always -d proxyscan || exit 0
+	docker run --network searchproxy --name proxyscan-3 --restart=always -d proxyscan || exit 0
 play_scanproxy:
 	docker run --network searchproxy --name scanproxy-1 --restart=always -d scanproxy || exit 0
 	docker run --network searchproxy --name scanproxy-2 --restart=always -d scanproxy || exit 0
@@ -72,6 +92,18 @@ play_localscan:
 	docker run --name scanproxy-8 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-9 --restart=always -e MOD=0 -d scanproxy || exit 0
 	docker run --name scanproxy-0 --restart=always -e MOD=0 -d scanproxy || exit 0
+play_localport:
+	docker run --name scanport-1 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-2 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-3 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-4 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-5 --restart=always -e MOD=0 -d scanport || exit 0
+play_localproxy:
+	docker run --name scanproxy-1 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-2 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-3 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-4 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name scanproxy-5 --restart=always -e MOD=0 -d scanproxy || exit 0
 play_save:
 	docker run --network searchproxy --name save-1 --restart=always -d save || exit 0
 play_pushmsg:

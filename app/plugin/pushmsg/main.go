@@ -12,7 +12,6 @@ import (
 	"searchproxy/app/fram/config"
 	"searchproxy/app/fram/db"
 	"searchproxy/app/fram/logs"
-	"searchproxy/app/fram/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -163,60 +162,79 @@ func ipfilter(ip string) bool {
 
 func taskpush(m *pushmsg, cache *db.RedisClient) {
 	rand.Seed(time.Now().Unix())
-	var startip int64
-	get, err := cache.Get("scanip")
+	var startipa int
+	ipa, err := cache.Get("scanip-a")
 	if err != nil {
-		startip = utils.Ip2Int64("1.1.1.1")
+		startipa = 1
 	} else {
-		startip, err = strconv.ParseInt(get, 10, 64)
-		if err != nil {
-			startip = utils.Ip2Int64("1.1.1.1")
-		}
+		startipa, _ = strconv.Atoi(ipa)
 	}
-	for i := startip; i < utils.Ip2Int64("255.255.255.255"); i++ {
-		ip := utils.Int64ToIp(i)
-		if ipfilter(ip) == false {
-			logs.Install().Infoln(ip, "continue")
-			continue
-		}
-		logs.Install().Infoln(ip)
-		var scner string
-		var rate int
-		if rand.Int63n(2) == 0 {
-			scner = "syn"
-			rate = 1000
-		} else {
-			scner = "masscan"
-			rate = 10000
-		}
-		var portlist []interface{}
-		config.Install().Get("ports", &portlist)
-		var ports string
-		for _, v := range portlist {
-			if ports == "" {
-				ports = fmt.Sprintf("%v", v)
-			} else {
-				ports = fmt.Sprintf("%v,%v", ports, v)
-			}
 
+	var startipb int
+	ipb, err := cache.Get("scanip-b")
+	if err != nil {
+		startipb = 0
+	} else {
+		startipb, _ = strconv.Atoi(ipb)
+	}
+
+	var startipc int
+	ipc, err := cache.Get("scanip-c")
+	if err != nil {
+		startipc = 0
+	} else {
+		startipc, _ = strconv.Atoi(ipc)
+	}
+	for a := startipa; a < 255; a++ {
+		for b := startipb; b < 255; b++ {
+			for c := startipc; c < 255; c++ {
+				ip := fmt.Sprintf("%v.%v.%v.1/24", a, b, c)
+				if !ipfilter(strings.Split(ip, "/")[0]) {
+					continue
+				}
+				logs.Install().Infoln(ip)
+				var scner string
+				var rate int
+				if rand.Int63n(2) == 0 {
+					scner = "syn"
+					rate = 1000
+				} else {
+					scner = "masscan"
+					rate = 10000
+				}
+				var portlist []interface{}
+				config.Install().Get("ports", &portlist)
+				var ports string
+				for _, v := range portlist {
+					if ports == "" {
+						ports = fmt.Sprintf("%v", v)
+					} else {
+						ports = fmt.Sprintf("%v,%v", ports, v)
+					}
+
+				}
+				marshal, err := json.Marshal(map[string]interface{}{
+					"ip":     ip,
+					"scaner": scner,
+					"rate":   rate,
+					"ports":  ports,
+				})
+				if err != nil {
+					continue
+				}
+				for getcount("scanport", m.Getqueues) > 100 {
+					logs.Install().Infoln("循环等待")
+					time.Sleep(1 * time.Second)
+				}
+				push("scanport", string(marshal), m.Pushurl)
+				cache.Set("scanip-a", a, time.Hour*99999)
+				cache.Set("scanip-b", b, time.Hour*99999)
+				cache.Set("scanip-c", c, time.Hour*99999)
+			}
 		}
-		marshal, err := json.Marshal(map[string]interface{}{
-			"ip":     ip,
-			"scaner": scner,
-			"rate":   rate,
-			"ports":  ports,
-		})
-		if err != nil {
-			continue
-		}
-		for getcount("scanproxy", m.Getqueues) > 100 {
-			logs.Install().Infoln("循环等待")
-			time.Sleep(1 * time.Second)
-		}
-		push("scanproxy", string(marshal), m.Pushurl)
-		cache.Set("scanip", i, time.Hour*99999)
 	}
 }
+
 func test(msg pushmsg) {
 	marshal, _ := json.Marshal(map[string]interface{}{
 		"ip":     "172.16.10.110",
@@ -239,14 +257,13 @@ func main() {
 	config.Install().Get("cache", &cachecfg)
 	cache := db.NewRedis(&cachecfg)
 
-	if !istopic("scanproxy", msg.Getqueues) {
-		createtopic("scanproxy", msg.Getqueues)
+	if !istopic("scanport", msg.Getqueues) {
+		createtopic("scanport", msg.Getqueues)
 	}
-	//test(msg)
 	taskpush(&msg, cache)
 	c := cron.New() // 新建一个定时任务对象
 	c.AddFunc("*/10 * * * *", func() {
-		if getcount("scanproxy", msg.Getqueues) == 0 {
+		if getcount("scanport", msg.Getqueues) == 0 {
 			taskpush(&msg, cache)
 		}
 	}) // 给对象增加定时任务

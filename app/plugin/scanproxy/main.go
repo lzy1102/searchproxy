@@ -300,7 +300,7 @@ func getallip(ip string) []string {
 		if err != nil {
 			return []string{}
 		}
-		maxhost := int(math.Pow(float64(2), float64(32-atoi+1))) - 2
+		maxhost := int(math.Pow(float64(2), float64(32-atoi))) - 2
 		minip := tmp[0]
 		tmpip := strings.Split(tmp[0], ".")
 		hostid, err := strconv.Atoi(tmpip[3])
