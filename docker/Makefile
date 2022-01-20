@@ -109,11 +109,11 @@ play_localport:
 	docker run --name scanport-4 --restart=always -e MOD=0 -d scanport || exit 0
 	docker run --name scanport-5 --restart=always -e MOD=0 -d scanport || exit 0
 play_localproxy:
-	docker run --name proxyscan-1 --restart=always -e MOD=0 -d scanproxy || exit 0
-	docker run --name proxyscan-2 --restart=always -e MOD=0 -d scanproxy || exit 0
-	docker run --name proxyscan-3 --restart=always -e MOD=0 -d scanproxy || exit 0
-	docker run --name proxyscan-4 --restart=always -e MOD=0 -d scanproxy || exit 0
-	docker run --name proxyscan-5 --restart=always -e MOD=0 -d scanproxy || exit 0
+	docker run --name proxyscan-1 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-2 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-3 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-4 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-5 --restart=always -e MOD=0 -d proxyscan || exit 0
 play_save:
 	docker run --network searchproxy --name save-1 --restart=always -d save || exit 0
 play_pushmsg:
