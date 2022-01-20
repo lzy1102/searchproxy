@@ -71,6 +71,9 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 
 			go func(host string, port int) {
 				portstatus := tcpshaker(host, port)
+				if portstatus {
+					log.Println(host, port, "status", portstatus)
+				}
 				bar.Increment()
 				<-ratechan // 执行完毕，释放资源
 				datachan <- map[string]interface{}{
@@ -127,7 +130,6 @@ func masscaner(target, ports, rate string) []interface{} {
 					"port":   port.Portid,
 					"status": true,
 				})
-
 			}
 		}
 	}
