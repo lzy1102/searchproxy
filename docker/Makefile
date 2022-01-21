@@ -21,6 +21,11 @@ clean:
                     scanport-3 \
                     scanport-4 \
                     scanport-5 \
+                    scanport-6 \
+                    scanport-7 \
+                    scanport-8 \
+                    scanport-9 \
+                    scanport-0 \
                     proxyscan-1 \
                     proxyscan-2 \
                     proxyscan-3 \
