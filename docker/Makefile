@@ -108,6 +108,11 @@ play_localport:
 	docker run --name scanport-3 --restart=always -e MOD=0 -d scanport || exit 0
 	docker run --name scanport-4 --restart=always -e MOD=0 -d scanport || exit 0
 	docker run --name scanport-5 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-6 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-7 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-8 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-9 --restart=always -e MOD=0 -d scanport || exit 0
+	docker run --name scanport-0 --restart=always -e MOD=0 -d scanport || exit 0
 play_localproxy:
 	docker run --name proxyscan-1 --restart=always -e MOD=0 -d proxyscan || exit 0
 	docker run --name proxyscan-2 --restart=always -e MOD=0 -d proxyscan || exit 0
