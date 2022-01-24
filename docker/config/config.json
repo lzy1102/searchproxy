@@ -49,7 +49,7 @@
       "scaner",
       "ports"
     ],
-    "cmd": "./scanport -ip {ip} -rate {rate} -scaner {scaner} -ports {ports} -out out.json",
+    "cmd": "./scanport -ip {ip} -rate {rate} -scaner {scaner} -ports {ports} -timeout 5 -out out.json",
     "out": "out.json",
     "next": [
       {
@@ -66,7 +66,7 @@
       "ip",
       "port"
     ],
-    "cmd": "./proxyscan -ip {ip} -port {port} -out out.json",
+    "cmd": "./proxyscan -ip {ip} -port {port} -timeout 5 -out out.json",
     "out": "out.json",
     "next": [
       {

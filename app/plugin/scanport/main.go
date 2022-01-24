@@ -32,7 +32,7 @@ func tcpshaker(ip string, port int) bool {
 
 	<-c.WaitReady()
 
-	timeout := 5 * time.Second
+	timeout := time.Duration(myinfo.timeout) * time.Second
 	err := c.CheckAddr(fmt.Sprintf("%v:%v", ip, port), timeout)
 	if err == nil {
 		return true
@@ -138,11 +138,12 @@ func masscaner(target, ports, rate string) []interface{} {
 }
 
 type info struct {
-	ip     string
-	rate   int
-	scaner string
-	ports  string
-	out    string
+	ip      string
+	rate    int
+	scaner  string
+	ports   string
+	timeout int
+	out     string
 }
 
 var myinfo info
@@ -152,6 +153,7 @@ func init() {
 	flag.IntVar(&myinfo.rate, "rate", 1000, "thread number")
 	flag.StringVar(&myinfo.scaner, "scaner", "syn", "scan name")
 	flag.StringVar(&myinfo.ports, "ports", "1080", "port list")
+	flag.IntVar(&myinfo.timeout, "timeout", 5, "time out sec")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {

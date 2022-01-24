@@ -25,7 +25,7 @@ import (
 func scanproxy(ip string, port int) (bool, bool, string) {
 	req.Client().Jar, _ = cookiejar.New(nil)
 	trans, _ := req.Client().Transport.(*http.Transport)
-	trans.TLSHandshakeTimeout = 5 * time.Second
+	trans.TLSHandshakeTimeout = time.Duration(myinfo.timeout) * time.Second
 	trans.DisableKeepAlives = true
 	trans.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -34,7 +34,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 		return false, false, ""
 	}
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
@@ -54,7 +54,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 
 	urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -66,7 +66,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -78,7 +78,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -90,7 +90,7 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
@@ -134,9 +134,10 @@ func synscan(ip, port string) (result []interface{}) {
 }
 
 type info struct {
-	ip   string
-	port string
-	out  string
+	ip      string
+	port    string
+	timeout int
+	out     string
 }
 
 var myinfo info
@@ -144,6 +145,7 @@ var myinfo info
 func init() {
 	flag.StringVar(&myinfo.ip, "ip", "127.0.0.1", "target ip")
 	flag.StringVar(&myinfo.port, "port", "1080", "port list")
+	flag.IntVar(&myinfo.timeout, "timeout", 5, "time out sec")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
