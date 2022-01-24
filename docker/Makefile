@@ -31,6 +31,11 @@ clean:
                     proxyscan-3 \
                     proxyscan-4 \
                     proxyscan-5 \
+                    proxyscan-6 \
+                    proxyscan-7 \
+                    proxyscan-8 \
+                    proxyscan-9 \
+                    proxyscan-0 \
     				save-1 \
     				config-1 \
     				pushmsg-1 | xargs docker rm || exit 0
