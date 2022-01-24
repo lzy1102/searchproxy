@@ -264,8 +264,7 @@ func synscan(ip, port string) (result []interface{}) {
 		return nil
 	}
 	datachan := make(chan interface{}, 4)
-	//proxystatus, isgoogle, protocol := false, false, ""
-	//proxystatus, isgoogle, protocol = scanproxy(ip, atoi)
+
 	go proxysocks5google(ip, atoi, datachan)
 	go proxysocks5baidu(ip, atoi, datachan)
 	go proxyhttpgoogle(ip, atoi, datachan)
@@ -276,16 +275,6 @@ func synscan(ip, port string) (result []interface{}) {
 			result = append(result, tmp)
 		}
 	}
-	//if proxystatus {
-	//	result = append(result, map[string]interface{}{
-	//		"ip":       ip,
-	//		"port":     port,
-	//		"proxy":    proxystatus,
-	//		"google":   isgoogle,
-	//		"protocol": protocol,
-	//	})
-	//}
-
 	return result
 }
 
