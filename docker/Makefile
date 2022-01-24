@@ -124,6 +124,11 @@ play_localproxy:
 	docker run --name proxyscan-3 --restart=always -e MOD=0 -d proxyscan || exit 0
 	docker run --name proxyscan-4 --restart=always -e MOD=0 -d proxyscan || exit 0
 	docker run --name proxyscan-5 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-6 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-7 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-8 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-9 --restart=always -e MOD=0 -d proxyscan || exit 0
+	docker run --name proxyscan-0 --restart=always -e MOD=0 -d proxyscan || exit 0
 play_save:
 	docker run --network searchproxy --name save-1 --restart=always -d save || exit 0
 play_pushmsg:
