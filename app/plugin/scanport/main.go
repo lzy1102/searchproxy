@@ -115,7 +115,7 @@ func socketsyn(host string, port int) bool {
 
 				if tcp.DstPort == srcport {
 					if tcp.SYN && tcp.ACK {
-						fmt.Println(host, "Port", dstport, " is OPEN")
+						//fmt.Println(host, "Port", dstport, " is OPEN")
 						return true
 					} else {
 						//log.Printf("Port %d is CLOSED\n", dstport)
