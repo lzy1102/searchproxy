@@ -153,7 +153,7 @@ func init() {
 	flag.IntVar(&myinfo.rate, "rate", 1000, "thread number")
 	flag.StringVar(&myinfo.scaner, "scaner", "syn", "scan name")
 	flag.StringVar(&myinfo.ports, "ports", "1080", "port list")
-	flag.IntVar(&myinfo.timeout, "timeout", 5, "time out sec")
+	flag.IntVar(&myinfo.timeout, "timeout", 1, "time out sec")
 	flag.StringVar(&myinfo.out, "out", "out.json", "out json file name")
 	flag.Parse()
 	if myinfo.ip == "" {
