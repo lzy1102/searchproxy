@@ -96,7 +96,7 @@ func socketsyn(host string, port int) bool {
 	}
 
 	// Set deadline so we don't wait forever.
-	if err := conn.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
+	if err := conn.SetDeadline(time.Now().Add(time.Duration(myinfo.timeout) * time.Second)); err != nil {
 		log.Fatal(err)
 	}
 
