@@ -30,7 +30,7 @@ import (
 	"github.com/google/gopacket/routing"
 	"log"
 	"net"
-	"searchproxy/plugin/scanproxy/testsyn/testrouting"
+	"searchproxy/app/plugin/scanproxy/testsyn/testrouting"
 	"time"
 )
 
