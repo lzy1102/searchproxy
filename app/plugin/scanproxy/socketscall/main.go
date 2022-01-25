@@ -117,7 +117,10 @@ func socketsyn(host string, port int) bool {
 	}
 }
 func main() {
-	log.Println(socketsyn("172.16.10.110", 3389))
+	for i := 0; i <= 65535; i++ {
+		log.Println(socketsyn("172.16.10.110", i))
+	}
+
 }
 func mainss() {
 	if len(os.Args) != 3 {
