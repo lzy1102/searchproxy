@@ -106,7 +106,6 @@ func socketsyn(host string, port int) bool {
 		n, addr, err := conn.ReadFrom(b)
 		if err != nil {
 			//log.Println("error reading packet: ", err)
-			return false
 		} else if addr.String() == dstip.String() {
 			// Decode a packet
 			packet := gopacket.NewPacket(b[:n], layers.LayerTypeTCP, gopacket.Default)
@@ -122,13 +121,10 @@ func socketsyn(host string, port int) bool {
 						//log.Printf("Port %d is CLOSED\n", dstport)
 						return false
 					}
-					return false
 				}
 			}
-			return false
 		} else {
 			log.Printf("Got packet not matching addr")
-			return false
 		}
 	}
 }
