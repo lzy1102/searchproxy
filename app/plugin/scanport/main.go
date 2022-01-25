@@ -63,33 +63,40 @@ func socketsyn(host string, port int) bool {
 		Protocol: layers.IPProtocolTCP,
 	}
 	// Our TCP header
-	t := &layers.TCP{
+	tcp := &layers.TCP{
 		SrcPort: srcport,
 		DstPort: dstport,
 		Seq:     1105024978,
 		SYN:     true,
 		Window:  14600,
 	}
-	_ = t.SetNetworkLayerForChecksum(ip)
+	_ = tcp.SetNetworkLayerForChecksum(ip)
 
+	// Serialize.  Note:  we only serialize the TCP layer, because the
+	// socket we get with net.ListenPacket wraps our data in IPv4 packets
+	// already.  We do still need the IP layer to compute checksums
+	// correctly, though.
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{
 		ComputeChecksums: true,
 		FixLengths:       true,
 	}
-	if err := gopacket.SerializeLayers(buf, opts, t); err != nil {
+	if err := gopacket.SerializeLayers(buf, opts, tcp); err != nil {
 		log.Fatal(err)
 	}
 
-	conn, err := net.ListenPacket("ip4:t", "0.0.0.0")
+	conn, err := net.ListenPacket("ip4:tcp", "0.0.0.0")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
+	log.Println("writing request")
 	if _, err := conn.WriteTo(buf.Bytes(), &net.IPAddr{IP: dstip}); err != nil {
 		log.Fatal(err)
 	}
-	if err := conn.SetDeadline(time.Now().Add(time.Duration(myinfo.timeout) * time.Second)); err != nil {
+
+	// Set deadline so we don't wait forever.
+	if err := conn.SetDeadline(time.Now().Add(10 * time.Second)); err != nil {
 		log.Fatal(err)
 	}
 
@@ -105,9 +112,10 @@ func socketsyn(host string, port int) bool {
 			packet := gopacket.NewPacket(b[:n], layers.LayerTypeTCP, gopacket.Default)
 			// Get the TCP layer from this packet
 			if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
-				l, _ := tcpLayer.(*layers.TCP)
-				if l.DstPort == srcport {
-					if l.SYN && l.ACK {
+				tcp, _ := tcpLayer.(*layers.TCP)
+
+				if tcp.DstPort == srcport {
+					if tcp.SYN && tcp.ACK {
 						log.Printf("Port %d is OPEN\n", dstport)
 						return true
 					} else {
