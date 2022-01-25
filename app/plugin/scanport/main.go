@@ -101,7 +101,7 @@ func socketsyn(host string, port int) bool {
 	}
 
 	for {
-		b := make([]byte, 40960)
+		b := make([]byte, 4096)
 		//log.Println("reading from conn")
 		n, addr, err := conn.ReadFrom(b)
 		if err != nil {
