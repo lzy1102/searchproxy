@@ -100,31 +100,32 @@ func socketsyn(host string, port int) bool {
 		log.Fatal(err)
 	}
 
-	for {
-		b := make([]byte, 4096)
-		//log.Println("reading from conn")
-		n, addr, err := conn.ReadFrom(b)
-		if err != nil {
-			//log.Println("error reading packet: ", err)
-		} else if addr.String() == dstip.String() {
-			// Decode a packet
-			packet := gopacket.NewPacket(b[:n], layers.LayerTypeTCP, gopacket.Default)
-			// Get the TCP layer from this packet
-			if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
-				tcp, _ := tcpLayer.(*layers.TCP)
+	//for {
+	b := make([]byte, 4096)
+	//log.Println("reading from conn")
+	n, addr, err := conn.ReadFrom(b)
+	if err != nil {
+		//log.Println("error reading packet: ", err)
+	} else if addr.String() == dstip.String() {
+		// Decode a packet
+		packet := gopacket.NewPacket(b[:n], layers.LayerTypeTCP, gopacket.Default)
+		// Get the TCP layer from this packet
+		if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+			tcp, _ := tcpLayer.(*layers.TCP)
 
-				if tcp.DstPort == srcport {
-					if tcp.SYN && tcp.ACK {
-						//fmt.Println(host, "Port", dstport, " is OPEN")
-						return true
-					} else {
-						//log.Printf("Port %d is CLOSED\n", dstport)
-						return false
-					}
+			if tcp.DstPort == srcport {
+				if tcp.SYN && tcp.ACK {
+					//fmt.Println(host, "Port", dstport, " is OPEN")
+					return true
+				} else {
+					//log.Printf("Port %d is CLOSED\n", dstport)
+					return false
 				}
 			}
 		}
 	}
+	//}
+	return false
 }
 
 func tcpshaker(ip string, port int) bool {
