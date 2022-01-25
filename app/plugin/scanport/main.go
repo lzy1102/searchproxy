@@ -179,8 +179,8 @@ func synscan(ip, ports string, rate int) (result []interface{}) {
 			ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 
 			go func(host string, port int) {
-				//portstatus := tcpshaker(host, port)
-				portstatus := socketsyn(host, port)
+				portstatus := tcpshaker(host, port)
+				//portstatus := socketsyn(host, port)
 				if portstatus {
 					log.Println(host, port, "status", portstatus)
 				}
