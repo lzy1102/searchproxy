@@ -102,10 +102,10 @@ func socketsyn(host string, port int) bool {
 
 	for {
 		b := make([]byte, 4096)
-		log.Println("reading from conn")
+		//log.Println("reading from conn")
 		n, addr, err := conn.ReadFrom(b)
 		if err != nil {
-			log.Println("error reading packet: ", err)
+			//log.Println("error reading packet: ", err)
 			return false
 		} else if addr.String() == dstip.String() {
 			// Decode a packet
@@ -116,10 +116,10 @@ func socketsyn(host string, port int) bool {
 
 				if tcp.DstPort == srcport {
 					if tcp.SYN && tcp.ACK {
-						log.Printf("Port %d is OPEN\n", dstport)
+						fmt.Printf("Port", dstport, " is OPEN")
 						return true
 					} else {
-						log.Printf("Port %d is CLOSED\n", dstport)
+						//log.Printf("Port %d is CLOSED\n", dstport)
 						return false
 					}
 					return false
