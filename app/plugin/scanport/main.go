@@ -123,8 +123,6 @@ func socketsyn(host string, port int) bool {
 					}
 				}
 			}
-		} else {
-			log.Printf("Got packet not matching addr")
 		}
 	}
 }
