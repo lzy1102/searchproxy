@@ -54,7 +54,7 @@ func socketsyn(host string, port int) bool {
 
 	srcip, sport := localIPPort(dstip)
 	srcport := layers.TCPPort(sport)
-	log.Printf("using srcip: %v", srcip.String())
+	//log.Printf("using srcip: %v", srcip.String())
 
 	// Our IP header... not used, but necessary for TCP checksumming.
 	ip := &layers.IPv4{
@@ -90,7 +90,7 @@ func socketsyn(host string, port int) bool {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	log.Println("writing request")
+	//log.Println("writing request")
 	if _, err := conn.WriteTo(buf.Bytes(), &net.IPAddr{IP: dstip}); err != nil {
 		log.Fatal(err)
 	}
@@ -116,7 +116,7 @@ func socketsyn(host string, port int) bool {
 
 				if tcp.DstPort == srcport {
 					if tcp.SYN && tcp.ACK {
-						fmt.Printf("Port", dstport, " is OPEN")
+						fmt.Printf(host, "Port", dstport, " is OPEN")
 						return true
 					} else {
 						//log.Printf("Port %d is CLOSED\n", dstport)
