@@ -211,7 +211,7 @@ loop:
 	if err != nil {
 		return nil, err
 	}
-	for i, iface := range ifaces {
+	for _, iface := range ifaces {
 		//if i != iface.Index-1 {
 		//	return nil, fmt.Errorf("out of order iface %d = %v", i, iface)
 		//}
@@ -235,7 +235,7 @@ loop:
 				}
 			}
 		}
-		log.Println(i, iface.Index-1, addrs)
+		//log.Println(i, iface.Index-1, addrs)
 		rtr.addrs = append(rtr.addrs, addrs)
 	}
 	return rtr, nil
