@@ -4,7 +4,6 @@
 package testrouting
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/google/gopacket/routing"
@@ -118,12 +117,12 @@ func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *n
 func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
 	var inputIndex uint32
 	//if input != nil {
-	for i, ifa := range r.ifaces {
-		if bytes.Equal(input, ifa.HardwareAddr) {
-			// Convert from zero- to one-indexed.
-			inputIndex = uint32(i + 1)
-			break
-		}
+	for _, ifa := range r.ifaces {
+		//if bytes.Equal(input, ifa.HardwareAddr) {
+		//	// Convert from zero- to one-indexed.
+		//	inputIndex = uint32(i + 1)
+		//	break
+		//}
 		addrs, _ := ifa.Addrs()
 		for _, address := range addrs {
 			ipNet, _ := address.(*net.IPNet)
