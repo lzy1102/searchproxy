@@ -151,7 +151,7 @@ func (r *router) getIface(dstip net.IP) net.Interface {
 
 func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
 	for _, rt := range r.v4 {
-		log.Println(rt.Gateway, rt.Dst)
+		log.Println("gateway", rt.Gateway, "dst", rt.Dst)
 	}
 	return nil, nil, nil, nil
 }
