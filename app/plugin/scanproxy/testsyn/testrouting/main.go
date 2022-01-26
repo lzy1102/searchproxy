@@ -126,6 +126,7 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		addrs, _ := ifa.Addrs()
 		for _, address := range addrs {
 			ipNet, _ := address.(*net.IPNet)
+			log.Println(ipNet.String())
 			if r.localIPPort(dst).String() == ipNet.String() {
 				iface = &ifa
 			}
