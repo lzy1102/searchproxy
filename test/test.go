@@ -160,7 +160,7 @@ func main() {
 	fmt.Printf("%-15v %-15v %-15v\n", "interfaceName", "gateway", "ip")
 	for _, rt := range newRoute.v4 {
 		if rt.Gateway != nil {
-
+			log.Println(rt.Gateway, rt.PrefSrc)
 			log.Println(json.Marshal(newRoute))
 			//fmt.Printf("%-15v %-15v %-15v\n", newRoute.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), newRoute.addrs[rt.OutputIface-1])
 		}
