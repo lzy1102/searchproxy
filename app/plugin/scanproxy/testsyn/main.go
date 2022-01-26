@@ -389,6 +389,7 @@ func main() {
 	ratechan := make(chan interface{}, 50) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
 	for _, i2 := range getallip(ipstr) {
+		log.Println(i2)
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
 		go func(host string) {
 			var ip net.IP
