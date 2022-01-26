@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cheggaaa/pb/v3"
 	"log"
@@ -159,7 +160,8 @@ func main() {
 	fmt.Printf("%-15v %-15v %-15v\n", "interfaceName", "gateway", "ip")
 	for _, rt := range newRoute.v4 {
 		if rt.Gateway != nil {
-			log.Println(newRoute)
+
+			log.Println(json.Marshal(newRoute))
 			//fmt.Printf("%-15v %-15v %-15v\n", newRoute.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), newRoute.addrs[rt.OutputIface-1])
 		}
 	}
