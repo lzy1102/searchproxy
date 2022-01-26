@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	resp, err := req.Get("http://www.google.com")
+	resp, err := req.Get("https://www.google.com")
 	if err != nil {
 		return
 	}
