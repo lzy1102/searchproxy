@@ -401,10 +401,10 @@ func main() {
 				log.Printf("unable to create scanner for %v: %v", ip, err)
 				return
 			}
-			status, err := s.scan(3389)
+			status, err := s.scan(80)
 			s.close()
 			if status {
-				log.Println("host ", host, " port ", 3389, " status ", status)
+				log.Println("host ", host, " port ", 80, " status ", status)
 			}
 		}(i2)
 	}
