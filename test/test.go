@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cheggaaa/pb/v3"
 	"net"
+	"os"
 	"sort"
 	"syscall"
 	"time"
@@ -167,6 +168,6 @@ func main() {
 	}
 	fmt.Println("**************************************")
 
-	newRoute.getRoute(net.ParseIP("172.16.30.190"))
+	newRoute.getRoute(net.ParseIP(os.Args[1]))
 
 }
