@@ -293,6 +293,7 @@ func (s *scanner) scan(dstport int) (bool, error) {
 	//	tcp.DstPort++
 	if err := s.send(&eth, &ip4, &tcp); err != nil {
 		//log.Printf("error sending to port %v: %v", tcp.DstPort, err)
+		return false, err
 	}
 	//}
 	// Time out 5 seconds after the last packet we sent.
@@ -311,33 +312,34 @@ func (s *scanner) scan(dstport int) (bool, error) {
 		//continue
 		return false, err
 	}
-
-	// Parse the packet.  We'd use DecodingLayerParser here if we
-	// wanted to be really fast.
-	packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
-
-	// Find the packets we care about, and print out logging
-	// information about them.  All others are ignored.
-	if net := packet.NetworkLayer(); net == nil {
-		// log.Printf("packet has no network layer")
-	} else if net.NetworkFlow() != ipFlow {
-		// log.Printf("packet does not match our ip src/dst")
-	} else if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer == nil {
-		// log.Printf("packet has not tcp layer")
-	} else if tcp, ok := tcpLayer.(*layers.TCP); !ok {
-		// We panic here because this is guaranteed to never
-		// happen.
-		//panic("tcp layer is not tcp layer :-/")
-	} else if tcp.DstPort != 54321 {
-		//log.Printf("dst port %v does not match", tcp.DstPort)
-	} else if tcp.RST {
-		//log.Printf("  port %v closed", tcp.SrcPort)
-	} else if tcp.SYN && tcp.ACK {
+	gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
+	if tcp.SYN && tcp.ACK {
 		//log.Printf("  port %v open", tcp.SrcPort)
 		return true, nil
-	} else {
-		//log.Printf("ignoring useless packet")
 	}
+
+	//// Parse the packet.  We'd use DecodingLayerParser here if we
+	//// wanted to be really fast.
+	//packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
+	//
+	//// Find the packets we care about, and print out logging
+	//// information about them.  All others are ignored.
+	//if net := packet.NetworkLayer(); net == nil {
+	//	// log.Printf("packet has no network layer")
+	//} else if net.NetworkFlow() != ipFlow {
+	//	// log.Printf("packet does not match our ip src/dst")
+	//} else if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer == nil {
+	//	// log.Printf("packet has not tcp layer")
+	//} else if tcp, ok := tcpLayer.(*layers.TCP); !ok {
+	//	// We panic here because this is guaranteed to never
+	//	// happen.
+	//	//panic("tcp layer is not tcp layer :-/")
+	//}  else if tcp.RST {
+	//	//log.Printf("  port %v closed", tcp.SrcPort)
+	//} else if tcp.SYN && tcp.ACK {
+	//	//log.Printf("  port %v open", tcp.SrcPort)
+	//	return true, nil
+	//}
 	//}
 	return false, nil
 }
@@ -404,7 +406,7 @@ func main() {
 				return
 			}
 			status, _ := s.scan(10808)
-			s.close()
+			defer s.close()
 			datachan <- map[string]interface{}{
 				"ip":     host,
 				"port":   10808,
