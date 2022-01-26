@@ -27,12 +27,133 @@ import (
 	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"github.com/google/gopacket/routing"
 	"log"
 	"net"
-	"searchproxy/app/plugin/scanproxy/testsyn/testrouting"
+	"sort"
+	"syscall"
 	"time"
+	"unsafe"
 )
+
+type rtInfo struct {
+	Dst              net.IPNet
+	Gateway, PrefSrc net.IP
+	OutputIface      uint32
+	Priority         uint32
+}
+
+type routeSlice []*rtInfo
+type router struct {
+	ifaces []net.Interface
+	addrs  []net.IP
+	v4     routeSlice
+}
+
+func getRouteInfo() (*router, error) {
+	rtr := &router{}
+	tab, err := syscall.NetlinkRIB(syscall.RTM_GETROUTE, syscall.AF_INET)
+	if err != nil {
+		return nil, err
+	}
+	msgs, err := syscall.ParseNetlinkMessage(tab)
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range msgs {
+		switch m.Header.Type {
+		case syscall.NLMSG_DONE:
+			break
+		case syscall.RTM_NEWROUTE:
+			rtmsg := (*syscall.RtMsg)(unsafe.Pointer(&m.Data[0]))
+			attrs, err := syscall.ParseNetlinkRouteAttr(&m)
+			if err != nil {
+				return nil, err
+			}
+			routeInfo := rtInfo{}
+			rtr.v4 = append(rtr.v4, &routeInfo)
+			for _, attr := range attrs {
+				switch attr.Attr.Type {
+				case syscall.RTA_DST:
+					routeInfo.Dst.IP = net.IP(attr.Value)
+					routeInfo.Dst.Mask = net.CIDRMask(int(rtmsg.Dst_len), len(attr.Value)*8)
+					log.Println("dst.ip", routeInfo.Dst.IP)
+				case syscall.RTA_GATEWAY:
+					routeInfo.Gateway = net.IPv4(attr.Value[0], attr.Value[1], attr.Value[2], attr.Value[3])
+					log.Println("gateway", routeInfo.Gateway)
+				case syscall.RTA_OIF:
+					routeInfo.OutputIface = *(*uint32)(unsafe.Pointer(&attr.Value[0]))
+				case syscall.RTA_PRIORITY:
+					routeInfo.Priority = *(*uint32)(unsafe.Pointer(&attr.Value[0]))
+				case syscall.RTA_PREFSRC:
+					routeInfo.PrefSrc = net.IPv4(attr.Value[0], attr.Value[1], attr.Value[2], attr.Value[3])
+					log.Println("prefsrc", routeInfo.PrefSrc)
+				}
+			}
+		}
+	}
+
+	sort.Slice(rtr.v4, func(i, j int) bool {
+		return rtr.v4[i].Priority < rtr.v4[j].Priority
+	})
+
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, iface := range ifaces {
+
+		if i != iface.Index-1 {
+			break
+		}
+		if iface.Flags&net.FlagUp == 0 {
+			continue
+		}
+		rtr.ifaces = append(rtr.ifaces, iface)
+		ifaceAddrs, err := iface.Addrs()
+		if err != nil {
+			return nil, err
+		}
+		var addrs net.IP
+		for _, addr := range ifaceAddrs {
+			if inet, ok := addr.(*net.IPNet); ok {
+				if v4 := inet.IP.To4(); v4 != nil {
+					if addrs == nil {
+						addrs = v4
+					}
+				}
+			}
+		}
+		rtr.addrs = append(rtr.addrs, addrs)
+	}
+	return rtr, nil
+}
+
+func (r *router) getIface(dstip net.IP) *net.Interface {
+	for _, iface := range r.ifaces {
+		addrs, _ := iface.Addrs()
+		for _, address := range addrs {
+			ipNet, _ := address.(*net.IPNet)
+			if dstip.String() == ipNet.String() {
+				return &iface
+			}
+		}
+	}
+	return &net.Interface{}
+}
+
+func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
+	for _, iface := range r.ifaces {
+		addrs, _ := iface.Addrs()
+		for _, address := range addrs {
+			ipNet, _ := address.(*net.IPNet)
+			if dst.String() == ipNet.String() {
+				return &iface
+			}
+		}
+	}
+	return &net.Interface{}
+}
 
 // scanner handles scanning a single IP address.
 type scanner struct {
@@ -68,7 +189,7 @@ func localIPPort(dstip net.IP) net.IP {
 
 // newScanner creates a new scanner for a given destination IP address, using
 // router to determine how to route packets to that IP.
-func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
+func newScanner(ip net.IP, router *router) (*scanner, error) {
 	s := &scanner{
 		dst: ip,
 		opts: gopacket.SerializeOptions{
@@ -79,6 +200,8 @@ func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
 	}
 	// Figure out the route to the IP.
 	s.src = localIPPort(ip)
+	s.iface = router.getIface(s.src)
+	s.gw = router
 	iface, gw, src, err := router.Route(ip)
 	if err != nil {
 		return nil, err
@@ -251,7 +374,11 @@ func (s *scanner) send(l ...gopacket.SerializableLayer) error {
 
 func main() {
 	defer util.Run()()
-	router, err := testrouting.New()
+
+	router, err := getRouteInfo()
+	if err != nil {
+		return
+	}
 	if err != nil {
 		log.Fatal("routing error:", err)
 	}

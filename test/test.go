@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/cheggaaa/pb/v3"
 	"log"
 	"net"
@@ -137,39 +135,29 @@ func getRouteInfo() (*router, error) {
 	}
 	return rtr, nil
 }
-func (r *router) getRoute(dst net.IP) {
-	for _, rt := range r.v4 {
-		if rt.Dst.IP != nil && !rt.Dst.Contains(dst) {
-			continue
+
+func (r *router) getIface(dstip net.IP) net.Interface {
+	for _, iface := range r.ifaces {
+		addrs, _ := iface.Addrs()
+		for _, address := range addrs {
+			ipNet, _ := address.(*net.IPNet)
+			if dstip.String() == ipNet.String() {
+				return iface
+			}
 		}
-		fmt.Printf("%-15v : ", dst.String())
-		if rt.PrefSrc == nil {
-			fmt.Println(r.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), r.addrs[rt.OutputIface-1].String())
-		} else {
-			fmt.Println(r.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), rt.PrefSrc.String())
-		}
-		return
 	}
+	return net.Interface{}
+}
+
+func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
+	for _, rt := range r.v4 {
+		log.Println(rt.Gateway, rt.Dst)
+	}
+	return nil, nil, nil, nil
 }
 func main() {
 
-	newRoute, err := getRouteInfo()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("**************************************")
-	fmt.Printf("%-15v %-15v %-15v\n", "interfaceName", "gateway", "ip")
-	for _, rt := range newRoute.v4 {
-		if rt.Gateway != nil {
-			log.Println(rt.Gateway, rt.PrefSrc, newRoute.addrs)
-			log.Println(json.Marshal(newRoute))
-			//fmt.Printf("%-15v %-15v %-15v\n", newRoute.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), newRoute.addrs[rt.OutputIface-1])
-		}
-	}
-	fmt.Println("**************************************")
-
-	//newRoute.getRoute(net.ParseIP(os.Args[1]))
+	newroute, _ := getRouteInfo()
+	newroute.Route(net.ParseIP("172.16.10.110"))
 
 }
