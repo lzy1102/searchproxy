@@ -1,4 +1,5 @@
-//+build linux
+//go:build linux
+// +build linux
 
 package testrouting
 
@@ -13,6 +14,7 @@ import (
 	"syscall"
 	"unsafe"
 )
+
 // Pulled from http://man7.org/linux/man-pages/man7/rtnetlink.7.html
 // See the section on RTM_NEWROUTE, specifically 'struct rtmsg'.
 type routeInfoInMemory struct {
@@ -28,6 +30,7 @@ type routeInfoInMemory struct {
 
 	Flags uint32
 }
+
 // rtInfo contains information on a single route.
 type rtInfo struct {
 	Src, Dst                *net.IPNet
@@ -113,12 +116,12 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Dst != nil && !rt.Dst.Contains(dst) {
 			continue
 		}
-		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
+		//return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
+		return int(rt.InputIface), rt.Gateway, rt.PrefSrc, nil
 	}
 	err = fmt.Errorf("no route found for %v", dst)
 	return
 }
-
 
 func New() (routing.Router, error) {
 	rtr := &router{}
@@ -206,14 +209,14 @@ loop:
 				}
 			}
 		}
-		log.Println(i,iface.Index-1,addrs)
+		log.Println(i, iface.Index-1, addrs)
 		rtr.addrs = append(rtr.addrs, addrs)
 	}
 	return rtr, nil
 }
 func main() {
-	r,err:= New()
-	if err!=nil {
+	r, err := New()
+	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println(r)
