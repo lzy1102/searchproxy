@@ -179,7 +179,7 @@ func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("scanning ip %v with interface %v, gateway %v, src %v", ip, iface.Name, gw, src)
+	//log.Printf("scanning ip %v with interface %v, gateway %v, src %v", ip, iface.Name, gw, src)
 	s.gw, s.src, s.iface = gw, src, iface
 
 	// Open the handle for reading/writing.
@@ -292,12 +292,12 @@ func (s *scanner) scan(dstport int) (bool, error) {
 	tcp.DstPort = layers.TCPPort(dstport)
 	//	tcp.DstPort++
 	if err := s.send(&eth, &ip4, &tcp); err != nil {
-		log.Printf("error sending to port %v: %v", tcp.DstPort, err)
+		//log.Printf("error sending to port %v: %v", tcp.DstPort, err)
 	}
 	//}
 	// Time out 5 seconds after the last packet we sent.
 	if time.Since(start) > time.Second*5 {
-		log.Printf("timed out for %v, assuming we've seen all we can", s.dst)
+		//log.Printf("timed out for %v, assuming we've seen all we can", s.dst)
 		return false, nil
 	}
 
@@ -307,7 +307,7 @@ func (s *scanner) scan(dstport int) (bool, error) {
 		//continue
 		return false, err
 	} else if err != nil {
-		log.Printf("error reading packet: %v", err)
+		//log.Printf("error reading packet: %v", err)
 		//continue
 		return false, err
 	}
@@ -327,16 +327,16 @@ func (s *scanner) scan(dstport int) (bool, error) {
 	} else if tcp, ok := tcpLayer.(*layers.TCP); !ok {
 		// We panic here because this is guaranteed to never
 		// happen.
-		panic("tcp layer is not tcp layer :-/")
+		//panic("tcp layer is not tcp layer :-/")
 	} else if tcp.DstPort != 54321 {
-		log.Printf("dst port %v does not match", tcp.DstPort)
+		//log.Printf("dst port %v does not match", tcp.DstPort)
 	} else if tcp.RST {
 		//log.Printf("  port %v closed", tcp.SrcPort)
 	} else if tcp.SYN && tcp.ACK {
-		log.Printf("  port %v open", tcp.SrcPort)
+		//log.Printf("  port %v open", tcp.SrcPort)
 		return true, nil
 	} else {
-		log.Printf("ignoring useless packet")
+		//log.Printf("ignoring useless packet")
 	}
 	//}
 	return false, nil
