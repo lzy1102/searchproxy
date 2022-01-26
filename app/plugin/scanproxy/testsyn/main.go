@@ -403,7 +403,9 @@ func main() {
 			}
 			status, err := s.scan(3389)
 			s.close()
-			log.Println("host ", host, " port ", 3389, " status ", status)
+			if status {
+				log.Println("host ", host, " port ", 3389, " status ", status)
+			}
 		}(i2)
 	}
 	select {}
