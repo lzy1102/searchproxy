@@ -402,13 +402,13 @@ func main() {
 				log.Printf("unable to create scanner for %v: %v", ip, err)
 				return
 			}
-			status, _ := s.scan(22)
+			status, _ := s.scan(3389)
+			s.close()
 			datachan <- map[string]interface{}{
 				"ip":     host,
-				"port":   22,
+				"port":   3389,
 				"status": status,
 			}
-			s.close()
 			<-ratechan // 执行完毕，释放资源
 		}(i2)
 	}
