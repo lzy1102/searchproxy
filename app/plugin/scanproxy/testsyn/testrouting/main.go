@@ -133,6 +133,9 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 				break
 			}
 		}
+		if iface != nil {
+			break
+		}
 	}
 	//}
 	for _, rt := range routes {
