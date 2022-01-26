@@ -85,14 +85,17 @@ func getRouteInfo() (*router, error) {
 				case syscall.RTA_DST:
 					routeInfo.Dst.IP = net.IP(attr.Value)
 					routeInfo.Dst.Mask = net.CIDRMask(int(rtmsg.Dst_len), len(attr.Value)*8)
+					log.Println("dst.ip", routeInfo.Dst.IP)
 				case syscall.RTA_GATEWAY:
 					routeInfo.Gateway = net.IPv4(attr.Value[0], attr.Value[1], attr.Value[2], attr.Value[3])
+					log.Println("gateway", routeInfo.Gateway)
 				case syscall.RTA_OIF:
 					routeInfo.OutputIface = *(*uint32)(unsafe.Pointer(&attr.Value[0]))
 				case syscall.RTA_PRIORITY:
 					routeInfo.Priority = *(*uint32)(unsafe.Pointer(&attr.Value[0]))
 				case syscall.RTA_PREFSRC:
 					routeInfo.PrefSrc = net.IPv4(attr.Value[0], attr.Value[1], attr.Value[2], attr.Value[3])
+					log.Println("prefsrc", routeInfo.PrefSrc)
 				}
 			}
 		}
