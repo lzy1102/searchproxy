@@ -386,7 +386,7 @@ func main() {
 	if err != nil {
 		log.Fatal("routing error:", err)
 	}
-	ratechan := make(chan interface{}, 1000) // 控制任务并发的chan
+	ratechan := make(chan interface{}, 50) // 控制任务并发的chan
 	datachan := make(chan interface{}, 0)
 	for _, i2 := range getallip(ipstr) {
 		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
