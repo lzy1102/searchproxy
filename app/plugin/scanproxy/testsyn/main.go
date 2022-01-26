@@ -159,23 +159,6 @@ type scanner struct {
 	buf  gopacket.SerializeBuffer
 }
 
-func localIPPort(dstip net.IP) net.IP {
-	serverAddr, err := net.ResolveUDPAddr("udp", dstip.String()+":12345")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// We don't actually connect to anything, but we can determine
-	// based on our destination ip what source ip we should use.
-	if con, err := net.DialUDP("udp", nil, serverAddr); err == nil {
-		if udpaddr, ok := con.LocalAddr().(*net.UDPAddr); ok {
-			return udpaddr.IP
-		}
-	}
-	log.Fatal("could not get local ip: " + err.Error())
-	return nil
-}
-
 // newScanner creates a new scanner for a given destination IP address, using
 // router to determine how to route packets to that IP.
 func newScanner(ip net.IP, router routing.Router) (*scanner, error) {

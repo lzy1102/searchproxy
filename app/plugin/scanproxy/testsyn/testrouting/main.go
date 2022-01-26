@@ -5,7 +5,6 @@ package testrouting
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/gopacket/routing"
@@ -65,15 +64,30 @@ type router struct {
 func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
 	return r.RouteWithSrc(nil, nil, dst)
 }
+func (r *router) localIPPort(dstip net.IP) net.IP {
+	serverAddr, err := net.ResolveUDPAddr("udp", dstip.String()+":12345")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// We don't actually connect to anything, but we can determine
+	// based on our destination ip what source ip we should use.
+	if con, err := net.DialUDP("udp", nil, serverAddr); err == nil {
+		if udpaddr, ok := con.LocalAddr().(*net.UDPAddr); ok {
+			return udpaddr.IP
+		}
+	}
+	log.Fatal("could not get local ip: " + err.Error())
+	return nil
+}
 func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
-	var ifaceIndex int
+	//var ifaceIndex int
 	log.Println(r.v4, input, src, dst)
 	switch {
 	case dst.To4() != nil:
-		ifaceIndex, gateway, preferredSrc, err = r.route(r.v4, input, src, dst)
+		iface, gateway, preferredSrc, err = r.route(r.v4, input, src, dst)
 	case dst.To16() != nil:
-		ifaceIndex, gateway, preferredSrc, err = r.route(r.v6, input, src, dst)
+		iface, gateway, preferredSrc, err = r.route(r.v6, input, src, dst)
 	default:
 		err = errors.New("IP is not valid as IPv4 or IPv6")
 	}
@@ -83,37 +97,43 @@ func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *n
 	}
 
 	// Interfaces are 1-indexed, but we store them in a 0-indexed array.
-	ifaceIndex++
-
-	iface = &r.ifaces[ifaceIndex]
+	//ifaceIndex++
+	//
+	//iface = &r.ifaces[ifaceIndex]
 	if preferredSrc == nil {
-		switch {
-		case dst.To4() != nil:
-			preferredSrc = r.addrs[ifaceIndex].v4
-		case dst.To16() != nil:
-			preferredSrc = r.addrs[ifaceIndex].v6
-		}
+		preferredSrc = r.localIPPort(dst)
+		//switch {
+		//case dst.To4() != nil:
+		//	//preferredSrc = r.addrs[ifaceIndex].v4
+		//
+		//	preferredSrc=r.localIPPort(dst)
+		//case dst.To16() != nil:
+		//	//preferredSrc = r.addrs[ifaceIndex].v6
+		//	preferredSrc=r.localIPPort(dst)
+		//}
 	}
 	return
 }
 
-func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.IP) (iface int, gateway, preferredSrc net.IP, err error) {
+func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
 	var inputIndex uint32
 	if input != nil {
-		for i, iface := range r.ifaces {
-			if bytes.Equal(input, iface.HardwareAddr) {
+		for i, ifa := range r.ifaces {
+			if bytes.Equal(input, ifa.HardwareAddr) {
 				// Convert from zero- to one-indexed.
 				inputIndex = uint32(i + 1)
 				break
 			}
+			addrs, _ := ifa.Addrs()
+			for _, address := range addrs {
+				ipNet, _ := address.(*net.IPNet)
+				if dst.String() == ipNet.String() {
+					iface = &ifa
+				}
+			}
 		}
 	}
 	for _, rt := range routes {
-		marshal, err := json.Marshal(rt)
-		if err != nil {
-			return 0, nil, nil, err
-		}
-		log.Println("route ", string(marshal))
 		if rt.InputIface != 0 && rt.InputIface != inputIndex {
 			continue
 		}
@@ -123,7 +143,7 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Dst != nil && !rt.Dst.Contains(dst) {
 			continue
 		}
-		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
+		return iface, rt.Gateway, rt.PrefSrc, nil
 	}
 	err = fmt.Errorf("no route found for %v", dst)
 	return
