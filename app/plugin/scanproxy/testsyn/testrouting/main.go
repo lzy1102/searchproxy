@@ -5,6 +5,7 @@ package testrouting
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/gopacket/routing"
@@ -107,6 +108,11 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		}
 	}
 	for _, rt := range routes {
+		marshal, err := json.Marshal(rt)
+		if err != nil {
+			return 0, nil, nil, err
+		}
+		log.Println("route ", string(marshal))
 		if rt.InputIface != 0 && rt.InputIface != inputIndex {
 			continue
 		}
@@ -116,8 +122,8 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Dst != nil && !rt.Dst.Contains(dst) {
 			continue
 		}
-		//return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
-		return int(rt.InputIface), rt.Gateway, rt.PrefSrc, nil
+		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
+		//return int(rt.InputIface), rt.Gateway, rt.PrefSrc, nil
 	}
 	err = fmt.Errorf("no route found for %v", dst)
 	return
