@@ -44,14 +44,20 @@ func main() {
 		return
 	}
 	for _, i2 := range interfaces {
+		if (i2.Flags & net.FlagUp) == 0 {
+			continue
+		}
 		tmp := i2
 		addrs, err := tmp.Addrs()
-		for _, addr := range addrs {
-			log.Println(addr.String())
-		}
 		if err != nil {
 			return
 		}
-		log.Println(tmp.Index, tmp.Name, tmp.HardwareAddr, addrs[0].String())
+		for _, addr := range addrs {
+			ipNet, isVailIpNet := addr.(*net.IPNet)
+			if isVailIpNet && !ipNet.IP.IsLoopback() {
+				log.Println(tmp.Index, tmp.Name, addr.String())
+			}
+		}
+
 	}
 }
