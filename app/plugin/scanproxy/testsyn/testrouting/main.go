@@ -83,7 +83,7 @@ func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *n
 	}
 
 	// Interfaces are 1-indexed, but we store them in a 0-indexed array.
-	ifaceIndex--
+	ifaceIndex++
 
 	iface = &r.ifaces[ifaceIndex]
 	if preferredSrc == nil {
@@ -108,7 +108,7 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 			}
 		}
 	}
-	for _, rt := range routes {
+	for k, rt := range routes {
 		marshal, err := json.Marshal(rt)
 		if err != nil {
 			return 0, nil, nil, err
@@ -123,7 +123,7 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Dst != nil && !rt.Dst.Contains(dst) {
 			continue
 		}
-		//return k, rt.Gateway, rt.PrefSrc, nil
+		return k, rt.Gateway, rt.PrefSrc, nil
 		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
 	}
 	err = fmt.Errorf("no route found for %v", dst)
