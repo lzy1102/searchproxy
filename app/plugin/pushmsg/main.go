@@ -197,10 +197,10 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 				var rate int
 				if rand.Int63n(2) == 0 {
 					scner = "syn"
-					rate = 1000
+					rate = 100
 				} else {
 					scner = "masscan"
-					rate = 10000
+					rate = 1000
 				}
 				var portlist []interface{}
 				config.Install().Get("ports", &portlist)
@@ -227,9 +227,9 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 					time.Sleep(1 * time.Second)
 				}
 				push("scanport", string(marshal), m.Pushurl)
-				cache.Set("scanip-a", a, time.Hour*99999)
-				cache.Set("scanip-b", b, time.Hour*99999)
-				cache.Set("scanip-c", c, time.Hour*99999)
+				cache.Set("scanip-a", a, time.Minute)
+				cache.Set("scanip-b", b, time.Minute)
+				cache.Set("scanip-c", c, time.Minute)
 			}
 		}
 	}
