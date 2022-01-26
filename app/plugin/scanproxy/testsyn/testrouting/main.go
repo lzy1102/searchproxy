@@ -68,6 +68,7 @@ func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc 
 
 func (r *router) RouteWithSrc(input net.HardwareAddr, src, dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
 	var ifaceIndex int
+	log.Println(r.v4, input, src, dst)
 	switch {
 	case dst.To4() != nil:
 		ifaceIndex, gateway, preferredSrc, err = r.route(r.v4, input, src, dst)
