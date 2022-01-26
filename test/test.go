@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/cheggaaa/pb/v3"
+	"log"
+	"net"
 	"time"
 )
 
@@ -37,5 +39,19 @@ func synscan(rate int) (result []interface{}) {
 	return result
 }
 func main() {
-	synscan(100000)
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return
+	}
+	for _, i2 := range interfaces {
+		tmp := i2
+		addrs, err := tmp.Addrs()
+		for _, addr := range addrs {
+			log.Println(addr.String())
+		}
+		if err != nil {
+			return
+		}
+		log.Println(tmp.Index, tmp.Name, tmp.HardwareAddr, addrs[0].String())
+	}
 }
