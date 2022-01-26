@@ -23,15 +23,20 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/routing"
 	"log"
+	"math"
 	"net"
-	"searchproxy/app/plugin/scanproxy/testsyn/testrouting"
+	"searchproxy/app/fram/utils"
+	routing2 "searchproxy/app/plugin/scanproxy/testsyn/routing"
 	"sort"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 	"unsafe"
@@ -343,29 +348,50 @@ func (s *scanner) send(l ...gopacket.SerializableLayer) error {
 	}
 	return s.handle.WritePacketData(s.buf.Bytes())
 }
-
+func getallip(ip string) []string {
+	iplist := make([]string, 0)
+	if strings.Contains(ip, "/") {
+		tmp := strings.Split(ip, "/")
+		atoi, err := strconv.Atoi(tmp[1])
+		if err != nil {
+			return []string{}
+		}
+		maxhost := int(math.Pow(float64(2), float64(32-atoi))) - 2
+		minip := tmp[0]
+		tmpip := strings.Split(tmp[0], ".")
+		hostid, err := strconv.Atoi(tmpip[3])
+		if err != nil {
+			return []string{}
+		}
+		maxip := fmt.Sprintf("%v.%v.%v.%v", tmpip[0], tmpip[1], tmpip[2], hostid+maxhost)
+		fmt.Println(minip, maxip)
+		iplist = utils.GetIpAll(minip, maxip)
+	} else {
+		iplist = append(iplist, ip)
+	}
+	return iplist
+}
 func main() {
+	var ipstr string
+	flag.StringVar(&ipstr, "ip", "127.0.0.1", "")
+	flag.Parse()
+
 	defer util.Run()()
 
-	router, err := testrouting.New()
+	router, err := routing2.New()
 	if err != nil {
 		return
 	}
 	if err != nil {
 		log.Fatal("routing error:", err)
 	}
-	for _, arg := range flag.Args() {
+	for _, i2 := range getallip(ipstr) {
 		var ip net.IP
-		if ip = net.ParseIP(arg); ip == nil {
-			log.Printf("non-ip target: %q", arg)
+		if ip = net.ParseIP(i2); ip == nil {
 			continue
 		} else if ip = ip.To4(); ip == nil {
-			log.Printf("non-ipv4 target: %q", arg)
 			continue
 		}
-		// Note:  newScanner creates and closes a pcap Handle once for
-		// every scan target.  We could do much better, were this not an
-		// example ;)
 		s, err := newScanner(ip, router)
 		if err != nil {
 			log.Printf("unable to create scanner for %v: %v", ip, err)
