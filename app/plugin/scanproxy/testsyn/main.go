@@ -178,7 +178,7 @@ func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("scanning ip %v with interface %v, gateway %v, src %v", ip, iface.Name, gw, src)
+	//log.Printf("scanning ip %v with interface %v, gateway %v, src %v", ip, iface.Name, gw, src)
 	s.gw, s.src, s.iface = gw, src, iface
 
 	// Open the handle for reading/writing.
