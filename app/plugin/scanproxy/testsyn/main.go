@@ -175,10 +175,6 @@ func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
 		},
 		buf: gopacket.NewSerializeBuffer(),
 	}
-	// Figure out the route to the IP.
-	//s.src = localIPPort(ip)
-	//s.iface = router.getIface(s.src)
-	//s.gw = router
 	iface, gw, src, err := router.Route(ip)
 	if err != nil {
 		return nil, err
@@ -258,11 +254,11 @@ func (s *scanner) getHwAddr() (net.HardwareAddr, error) {
 }
 
 // scan scans the dst IP address of this scanner.
-func (s *scanner) scan() error {
+func (s *scanner) scan(dstport int) (bool, error) {
 	// First off, get the MAC address we should be sending packets to.
 	hwaddr, err := s.getHwAddr()
 	if err != nil {
-		return err
+		return false, err
 	}
 	// Construct all the network layers we need.
 	eth := layers.Ethernet{
@@ -288,57 +284,62 @@ func (s *scanner) scan() error {
 	// against it and discard useless packets.
 	ipFlow := gopacket.NewFlow(layers.EndpointIPv4, s.dst, s.src)
 	start := time.Now()
-	for {
-		// Send one packet per loop iteration until we've sent packets
-		// to all of ports [1, 65535].
-		if tcp.DstPort < 65535 {
-			start = time.Now()
-			tcp.DstPort++
-			if err := s.send(&eth, &ip4, &tcp); err != nil {
-				log.Printf("error sending to port %v: %v", tcp.DstPort, err)
-			}
-		}
-		// Time out 5 seconds after the last packet we sent.
-		if time.Since(start) > time.Second*5 {
-			log.Printf("timed out for %v, assuming we've seen all we can", s.dst)
-			return nil
-		}
-
-		// Read in the next packet.
-		data, _, err := s.handle.ReadPacketData()
-		if err == pcap.NextErrorTimeoutExpired {
-			continue
-		} else if err != nil {
-			log.Printf("error reading packet: %v", err)
-			continue
-		}
-
-		// Parse the packet.  We'd use DecodingLayerParser here if we
-		// wanted to be really fast.
-		packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
-
-		// Find the packets we care about, and print out logging
-		// information about them.  All others are ignored.
-		if net := packet.NetworkLayer(); net == nil {
-			// log.Printf("packet has no network layer")
-		} else if net.NetworkFlow() != ipFlow {
-			// log.Printf("packet does not match our ip src/dst")
-		} else if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer == nil {
-			// log.Printf("packet has not tcp layer")
-		} else if tcp, ok := tcpLayer.(*layers.TCP); !ok {
-			// We panic here because this is guaranteed to never
-			// happen.
-			panic("tcp layer is not tcp layer :-/")
-		} else if tcp.DstPort != 54321 {
-			log.Printf("dst port %v does not match", tcp.DstPort)
-		} else if tcp.RST {
-			//log.Printf("  port %v closed", tcp.SrcPort)
-		} else if tcp.SYN && tcp.ACK {
-			log.Printf("  port %v open", tcp.SrcPort)
-		} else {
-			log.Printf("ignoring useless packet")
-		}
+	//for {
+	// Send one packet per loop iteration until we've sent packets
+	// to all of ports [1, 65535].
+	//if tcp.DstPort < 65535 {
+	start = time.Now()
+	tcp.DstPort = layers.TCPPort(dstport)
+	//	tcp.DstPort++
+	if err := s.send(&eth, &ip4, &tcp); err != nil {
+		log.Printf("error sending to port %v: %v", tcp.DstPort, err)
 	}
+	//}
+	// Time out 5 seconds after the last packet we sent.
+	if time.Since(start) > time.Second*5 {
+		log.Printf("timed out for %v, assuming we've seen all we can", s.dst)
+		return false, nil
+	}
+
+	// Read in the next packet.
+	data, _, err := s.handle.ReadPacketData()
+	if err == pcap.NextErrorTimeoutExpired {
+		//continue
+		return false, err
+	} else if err != nil {
+		log.Printf("error reading packet: %v", err)
+		//continue
+		return false, err
+	}
+
+	// Parse the packet.  We'd use DecodingLayerParser here if we
+	// wanted to be really fast.
+	packet := gopacket.NewPacket(data, layers.LayerTypeEthernet, gopacket.NoCopy)
+
+	// Find the packets we care about, and print out logging
+	// information about them.  All others are ignored.
+	if net := packet.NetworkLayer(); net == nil {
+		// log.Printf("packet has no network layer")
+	} else if net.NetworkFlow() != ipFlow {
+		// log.Printf("packet does not match our ip src/dst")
+	} else if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer == nil {
+		// log.Printf("packet has not tcp layer")
+	} else if tcp, ok := tcpLayer.(*layers.TCP); !ok {
+		// We panic here because this is guaranteed to never
+		// happen.
+		panic("tcp layer is not tcp layer :-/")
+	} else if tcp.DstPort != 54321 {
+		log.Printf("dst port %v does not match", tcp.DstPort)
+	} else if tcp.RST {
+		//log.Printf("  port %v closed", tcp.SrcPort)
+	} else if tcp.SYN && tcp.ACK {
+		log.Printf("  port %v open", tcp.SrcPort)
+		return true, nil
+	} else {
+		log.Printf("ignoring useless packet")
+	}
+	//}
+	return false, nil
 }
 
 // send sends the given layers as a single packet on the network.
@@ -385,21 +386,35 @@ func main() {
 	if err != nil {
 		log.Fatal("routing error:", err)
 	}
+	ratechan := make(chan interface{}, 100) // 控制任务并发的chan
+	datachan := make(chan interface{}, 0)
 	for _, i2 := range getallip(ipstr) {
-		var ip net.IP
-		if ip = net.ParseIP(i2); ip == nil {
-			continue
-		} else if ip = ip.To4(); ip == nil {
-			continue
-		}
-		s, err := newScanner(ip, router)
-		if err != nil {
-			log.Printf("unable to create scanner for %v: %v", ip, err)
-			continue
-		}
-		if err := s.scan(); err != nil {
-			log.Printf("unable to scan %v: %v", ip, err)
-		}
-		s.close()
+		ratechan <- struct{}{} // 作用类似于waitgroup.Add(1)
+		go func(host string) {
+			var ip net.IP
+			if ip = net.ParseIP(host); ip == nil {
+				return
+			} else if ip = ip.To4(); ip == nil {
+				return
+			}
+			s, err := newScanner(ip, router)
+			if err != nil {
+				log.Printf("unable to create scanner for %v: %v", ip, err)
+				return
+			}
+			status, _ := s.scan(22)
+			datachan <- map[string]interface{}{
+				"ip":     host,
+				"port":   22,
+				"status": status,
+			}
+			s.close()
+			<-ratechan // 执行完毕，释放资源
+		}(i2)
+	}
+
+	for range getallip(ipstr) {
+		tmp := <-datachan
+		log.Println(tmp)
 	}
 }
