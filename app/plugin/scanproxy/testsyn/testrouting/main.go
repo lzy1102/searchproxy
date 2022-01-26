@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"sort"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -127,8 +128,9 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		for _, address := range addrs {
 			ipNet, _ := address.(*net.IPNet)
 			log.Println(r.localIPPort(dst).String(), ipNet.String(), ifa.Name)
-			if r.localIPPort(dst).String() == ipNet.String() {
+			if r.localIPPort(dst).String() == strings.Split(ipNet.String(), "/")[0] {
 				iface = &ifa
+				break
 			}
 		}
 	}
