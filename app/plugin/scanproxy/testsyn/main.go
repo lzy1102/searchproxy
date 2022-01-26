@@ -406,4 +406,5 @@ func main() {
 			log.Println("host ", host, " port ", 3389, " status ", status)
 		}(i2)
 	}
+	select {}
 }
