@@ -282,7 +282,7 @@ func (s *scanner) scan(dstport int) (bool, error) {
 
 	// Create the flow we expect returning packets to have, so we can check
 	// against it and discard useless packets.
-	ipFlow := gopacket.NewFlow(layers.EndpointIPv4, s.dst, s.src)
+	gopacket.NewFlow(layers.EndpointIPv4, s.dst, s.src)
 	start := time.Now()
 	//for {
 	// Send one packet per loop iteration until we've sent packets
