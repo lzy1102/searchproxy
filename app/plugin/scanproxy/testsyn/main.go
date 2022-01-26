@@ -27,8 +27,10 @@ import (
 	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket/routing"
 	"log"
 	"net"
+	"searchproxy/app/plugin/scanproxy/testsyn/testrouting"
 	"sort"
 	"syscall"
 	"time"
@@ -142,19 +144,6 @@ func (r *router) getIface(dstip net.IP) *net.Interface {
 	return &net.Interface{}
 }
 
-func (r *router) Route(dst net.IP) (iface *net.Interface, gateway, preferredSrc net.IP, err error) {
-	for _, iface := range r.ifaces {
-		addrs, _ := iface.Addrs()
-		for _, address := range addrs {
-			ipNet, _ := address.(*net.IPNet)
-			if dst.String() == ipNet.String() {
-				return &iface
-			}
-		}
-	}
-	return &net.Interface{}
-}
-
 // scanner handles scanning a single IP address.
 type scanner struct {
 	// iface is the interface to send packets on.
@@ -189,7 +178,7 @@ func localIPPort(dstip net.IP) net.IP {
 
 // newScanner creates a new scanner for a given destination IP address, using
 // router to determine how to route packets to that IP.
-func newScanner(ip net.IP, router *router) (*scanner, error) {
+func newScanner(ip net.IP, router routing.Router) (*scanner, error) {
 	s := &scanner{
 		dst: ip,
 		opts: gopacket.SerializeOptions{
@@ -199,9 +188,9 @@ func newScanner(ip net.IP, router *router) (*scanner, error) {
 		buf: gopacket.NewSerializeBuffer(),
 	}
 	// Figure out the route to the IP.
-	s.src = localIPPort(ip)
-	s.iface = router.getIface(s.src)
-	s.gw = router
+	//s.src = localIPPort(ip)
+	//s.iface = router.getIface(s.src)
+	//s.gw = router
 	iface, gw, src, err := router.Route(ip)
 	if err != nil {
 		return nil, err
@@ -375,7 +364,7 @@ func (s *scanner) send(l ...gopacket.SerializableLayer) error {
 func main() {
 	defer util.Run()()
 
-	router, err := getRouteInfo()
+	router, err := testrouting.New()
 	if err != nil {
 		return
 	}

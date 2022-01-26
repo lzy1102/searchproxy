@@ -123,7 +123,6 @@ func (r *router) route(routes routeSlice, input net.HardwareAddr, src, dst net.I
 		if rt.Dst != nil && !rt.Dst.Contains(dst) {
 			continue
 		}
-		//return k, rt.Gateway, rt.PrefSrc, nil
 		return int(rt.OutputIface), rt.Gateway, rt.PrefSrc, nil
 	}
 	err = fmt.Errorf("no route found for %v", dst)
