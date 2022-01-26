@@ -389,24 +389,24 @@ func main() {
 
 	for _, i2 := range getallip(ipstr) {
 
-		go func(host string) {
-			var ip net.IP
-			if ip = net.ParseIP(host); ip == nil {
-				return
-			} else if ip = ip.To4(); ip == nil {
-				return
-			}
-			s, err := newScanner(ip, router)
-			if err != nil {
-				log.Printf("unable to create scanner for %v: %v", ip, err)
-				return
-			}
-			status, err := s.scan(80)
-			s.close()
-			if status {
-				log.Println("host ", host, " port ", 80, " status ", status)
-			}
-		}(i2)
+		//go func(host string) {
+		var ip net.IP
+		if ip = net.ParseIP(i2); ip == nil {
+			return
+		} else if ip = ip.To4(); ip == nil {
+			return
+		}
+		s, err := newScanner(ip, router)
+		if err != nil {
+			log.Printf("unable to create scanner for %v: %v", ip, err)
+			return
+		}
+		status, err := s.scan(80)
+		s.close()
+		if status {
+			log.Println("host ", i2, " port ", 80, " status ", status)
+		}
+		//}(i2)
 	}
-	select {}
+	//select {}
 }
