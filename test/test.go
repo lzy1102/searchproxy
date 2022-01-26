@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/cheggaaa/pb/v3"
+	"log"
 	"net"
-	"os"
 	"sort"
 	"syscall"
 	"time"
@@ -59,17 +59,14 @@ type router struct {
 
 func getRouteInfo() (*router, error) {
 	rtr := &router{}
-
 	tab, err := syscall.NetlinkRIB(syscall.RTM_GETROUTE, syscall.AF_INET)
 	if err != nil {
 		return nil, err
 	}
-
 	msgs, err := syscall.ParseNetlinkMessage(tab)
 	if err != nil {
 		return nil, err
 	}
-
 	for _, m := range msgs {
 		switch m.Header.Type {
 		case syscall.NLMSG_DONE:
@@ -114,7 +111,6 @@ func getRouteInfo() (*router, error) {
 		if i != iface.Index-1 {
 			break
 		}
-
 		if iface.Flags&net.FlagUp == 0 {
 			continue
 		}
@@ -163,11 +159,12 @@ func main() {
 	fmt.Printf("%-15v %-15v %-15v\n", "interfaceName", "gateway", "ip")
 	for _, rt := range newRoute.v4 {
 		if rt.Gateway != nil {
-			fmt.Printf("%-15v %-15v %-15v\n", newRoute.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), newRoute.addrs[rt.OutputIface-1])
+			log.Println(newRoute)
+			//fmt.Printf("%-15v %-15v %-15v\n", newRoute.ifaces[rt.OutputIface-1].Name, rt.Gateway.String(), newRoute.addrs[rt.OutputIface-1])
 		}
 	}
 	fmt.Println("**************************************")
 
-	newRoute.getRoute(net.ParseIP(os.Args[1]))
+	//newRoute.getRoute(net.ParseIP(os.Args[1]))
 
 }
