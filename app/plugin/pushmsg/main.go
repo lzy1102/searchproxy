@@ -144,15 +144,17 @@ func ipfilter(ip string) bool {
 			log.Println("是 172段")
 			return false
 		}
+		ipreg = `^127\.(1[6789]|2[0-9]|3[01])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
+		matchString, err = regexp.MatchString(ipreg, ip)
+		if err != nil || matchString {
+			log.Println("是 127段")
+			return false
+		}
 
 		ipreg = `^192\.168\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$`
 		matchString, err = regexp.MatchString(ipreg, ip)
 		if err != nil || matchString {
 			log.Println("是 192段")
-			return false
-		}
-		if strings.Split(ip, ".")[0] == "127" || strings.Split(ip, ".")[0] == "0" {
-			log.Println("是DNS")
 			return false
 		}
 		return true
@@ -197,10 +199,10 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 				var rate int
 				if rand.Int63n(2) == 0 {
 					scner = "syn"
-					rate = 100
+					rate = 250
 				} else {
 					scner = "masscan"
-					rate = 1000
+					rate = 2500
 				}
 				var portlist []interface{}
 				config.Install().Get("ports", &portlist)
