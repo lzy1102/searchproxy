@@ -199,10 +199,10 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 				var rate int
 				if rand.Int63n(2) == 0 {
 					scner = "syn"
-					rate = 250
+					rate = 500
 				} else {
 					scner = "masscan"
-					rate = 2500
+					rate = 5000
 				}
 				var portlist []interface{}
 				config.Install().Get("ports", &portlist)
