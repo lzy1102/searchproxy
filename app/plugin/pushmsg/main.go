@@ -229,9 +229,9 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 					time.Sleep(1 * time.Second)
 				}
 				push("scanport", string(marshal), m.Pushurl)
-				cache.Set("scanip-a", a, time.Minute)
-				cache.Set("scanip-b", b, time.Minute)
-				cache.Set("scanip-c", c, time.Minute)
+				cache.Set("scanip-a", a, time.Minute*5)
+				cache.Set("scanip-b", b, time.Minute*5)
+				cache.Set("scanip-c", c, time.Minute*5)
 			}
 		}
 	}
