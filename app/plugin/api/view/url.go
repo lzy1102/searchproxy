@@ -14,7 +14,7 @@ func Route(app *gin.Engine) {
 		}
 		post := api.Group("post")
 		{
-			post.POST("")
+			post.POST("delete", proxyview.DeleteProxy)
 		}
 	}
 }
