@@ -50,7 +50,9 @@ build_cache:
 build_mq:
 	cd mq;docker build -t searchmq .;cd -;
 build_restful:
+	cp -rf ../bin/restful restful/
 	cd restful;docker build -t restful .;cd -;
+	rm -rf restful/restful
 build_config:
 	cp -rf ../bin/config config/
 	cd config;docker build -t config .;cd -;
