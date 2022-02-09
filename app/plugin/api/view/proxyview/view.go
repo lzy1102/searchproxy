@@ -3,6 +3,7 @@ package proxyview
 import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"searchproxy/app/fram/db"
 	"searchproxy/app/fram/utils"
 	"strconv"
@@ -38,8 +39,11 @@ func GetProxylist(ctx *gin.Context) {
 }
 
 func DeleteProxy(ctx *gin.Context) {
-	ip := utils.Ip2Int64(ctx.PostForm("ip"))
-	port := ctx.PostForm("port")
-	db.MongoInstance().DeleteMany("info", bson.M{"ip": ip, "port": port})
+	id := ctx.PostForm("id")
+	hex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return
+	}
+	db.MongoInstance().DeleteMany("info", bson.M{"_id": hex,})
 	ctx.JSON(200, gin.H{"code": 200})
 }
