@@ -31,6 +31,9 @@ func GetProxylist(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
+	for _, ele := range data {
+		ele.(map[string]interface{})["ip"] = utils.Int64ToIp(ele.(map[string]interface{})["ip"].(int64))
+	}
 	ctx.JSON(200, data)
 }
 
