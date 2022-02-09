@@ -232,6 +232,9 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 				cache.Set("scanip-a", a, time.Hour)
 				cache.Set("scanip-b", b, time.Minute)
 				cache.Set("scanip-c", c, time.Minute)
+				if a >= 254 {
+					cache.Set("scanip-a", 0, time.Hour)
+				}
 			}
 		}
 	}
