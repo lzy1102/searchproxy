@@ -38,5 +38,8 @@ func main() {
 	app := gin.Default()
 	app.Use(Cors())
 	view.Route(app)
-	app.Run(":80")
+	err := app.Run(":8080")
+	if err != nil {
+		return
+	}
 }

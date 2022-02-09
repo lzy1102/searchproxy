@@ -1,9 +1,10 @@
 all: clean build play
 
-build: build_network build_db build_cache build_mq build_config build_pushmsg build_save build_scanproxy build_scanport build_proxyscan
-play: play_mq play_db play_cache play_config play_pushmsg play_save
+build: build_network build_restful build_db build_cache build_mq build_config build_pushmsg build_save build_scanproxy build_scanport build_proxyscan
+play: play_mq play_db play_cache play_config play_pushmsg play_save play_restful
 clean:
 	docker stop mq-1 \
+					restful-1 \
     				db-1 \
     				cache-1 \
     				scanproxy-1 \
@@ -48,6 +49,8 @@ build_cache:
 	cd cache;docker build -t searchcache .;cd -;
 build_mq:
 	cd mq;docker build -t searchmq .;cd -;
+build_restful:
+	cd restful;docker build -t restful .;cd -;
 build_config:
 	cp -rf ../bin/config config/
 	cd config;docker build -t config .;cd -;
@@ -89,6 +92,8 @@ play_mq:
 	docker run --network searchproxy --name mq-1 --restart=always -p 15672:15672 -p 5672:5672 -d searchmq || exit 0
 play_cache:
 	docker run --network searchproxy --name cache-1 --restart=always -d searchcache || exit 0
+play_restful:
+	docker run --network searchproxy --name restful-1 -p 8080:8080 --restart=always -d restful || exit 0
 play_scanport:
 	docker run --network searchproxy --name scanport-1 --restart=always -d scanport || exit 0
 	docker run --network searchproxy --name scanport-2 --restart=always -d scanport || exit 0
