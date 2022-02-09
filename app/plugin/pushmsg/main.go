@@ -230,8 +230,8 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 				}
 				push("scanport", string(marshal), m.Pushurl)
 				cache.Set("scanip-a", a, time.Hour)
-				cache.Set("scanip-b", b, time.Hour)
-				cache.Set("scanip-c", c, time.Hour)
+				cache.Set("scanip-b", b, time.Minute)
+				cache.Set("scanip-c", c, time.Minute)
 			}
 		}
 	}
