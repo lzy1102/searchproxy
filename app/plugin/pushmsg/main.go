@@ -205,7 +205,7 @@ func taskpush(m *pushmsg, cache *db.RedisClient) {
 					rate = 5000
 				}
 				var portlist []interface{}
-				config.Install().Get("ports", &portlist)
+				config.Install().Reget("ports", &portlist)
 				var ports string
 				for _, v := range portlist {
 					if ports == "" {

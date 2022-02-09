@@ -52,6 +52,15 @@ func Install() *flagValue {
 	return f
 }
 
+func (f flagValue) Reget(path string, obj interface{}) {
+	r, err := req.Get(fmt.Sprintf("http://%v/api/config/get", f.cfgaddr))
+	utils.FatalAssert(err)
+	utils.FatalAssert(json.Unmarshal(r.Bytes(), &f.cfg))
+	out, err := json.Marshal(f.cfg[path])
+	utils.FatalAssert(err)
+	_ = json.Unmarshal(out, obj)
+}
+
 func (f flagValue) Get(path string, obj interface{}) {
 	out, err := json.Marshal(f.cfg[path])
 	utils.FatalAssert(err)
