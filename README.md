@@ -7,7 +7,7 @@ searchproxy目录下执行  make
 再 cd docker ，执行 make build_scanport build_proxyscan
 编译程序,部署扫描节点 执行  make play_localport 扫描节点，make play_proxyscan 验证端口是否为代理
 
-
+#获取代理
 restful 端口8080，获取可用代理 api 为 GET请求
 protocol类型分为 socks5 和 http
 google  是否可访问google
