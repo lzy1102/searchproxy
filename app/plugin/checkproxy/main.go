@@ -46,12 +46,10 @@ func main() {
 						TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 					},
 				}
-				r, err := req.Get("https://www.google.com", client, req.Header{
+				_, err := req.Get("https://www.google.com", client, req.Header{
 					`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 				})
-				if err == nil {
-					log.Println(r.String())
-				} else {
+				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
 				}
@@ -89,12 +87,10 @@ func main() {
 						TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 					},
 				}
-				r, err := req.Get("https://www.baidu.com", client, req.Header{
+				_, err := req.Get("https://www.baidu.com", client, req.Header{
 					`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 				})
-				if err == nil {
-					log.Println(r.String())
-				} else {
+				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
 				}
@@ -130,12 +126,10 @@ func main() {
 						DisableKeepAlives: true,
 						TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 					}}
-				r, err := req.Get("https://www.baidu.com", client, req.Header{
+				_, err := req.Get("https://www.baidu.com", client, req.Header{
 					`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 				})
-				if err == nil {
-					log.Println(r.String())
-				} else {
+				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
 				}
@@ -171,12 +165,10 @@ func main() {
 						DisableKeepAlives: true,
 						TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 					}}
-				r, err := req.Get("https://www.google.com", client, req.Header{
+				_, err := req.Get("https://www.google.com", client, req.Header{
 					`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 				})
-				if err == nil {
-					log.Println(r.String())
-				} else {
+				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
 				}
