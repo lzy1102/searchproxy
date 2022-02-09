@@ -52,6 +52,8 @@ func main() {
 				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
+				} else {
+					log.Println(ip, port, "open")
 				}
 			}
 			skip += 10
@@ -93,6 +95,8 @@ func main() {
 				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
+				} else {
+					log.Println(ip, port, "open")
 				}
 			}
 			skip += 10
@@ -132,6 +136,8 @@ func main() {
 				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
+				} else {
+					log.Println(ip, port, "open")
 				}
 			}
 			skip += 10
@@ -171,6 +177,8 @@ func main() {
 				if err != nil {
 					log.Println(ip, port, "off")
 					offlist = append(offlist, oid)
+				} else {
+					log.Println(ip, port, "open")
 				}
 			}
 			skip += 10
