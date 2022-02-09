@@ -8,4 +8,4 @@ COPY . /opt/
 WORKDIR /opt/
 RUN chmod +x *
 RUN rm -rf /opt/Dockerfile
-CMD ["./checkproxy"]
+CMD ["./checkproxy","-addr","http://restful-1:8080/api/get/list","-del","http://restful-1:8080/api/post/delete"]

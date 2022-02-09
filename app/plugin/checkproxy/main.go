@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"flag"
 	"fmt"
 	"github.com/imroc/req"
 	"golang.org/x/net/proxy"
@@ -10,14 +11,18 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 func main() {
+	addr := flag.String("addr", "http://81.68.237.86:8080/api/get/list", "")
+	deleteaddr := flag.String("del", "http://81.68.237.86:8080/api/post/delete", "")
+	flag.Parse()
 	for {
 		skip := 0
 		var offlist []interface{}
 		for true {
-			resp, err := req.Get("http://restful-1:8080/api/get/list", req.QueryParam{
+			resp, err := req.Get(*addr, req.QueryParam{
 				"google":   true,
 				"protocol": "socks5",
 				"limit":    10,
@@ -38,6 +43,7 @@ func main() {
 				dialer, _ := proxy.SOCKS5("tcp", fmt.Sprintf("%v:%v", ip, port), nil, proxy.Direct)
 
 				client := &http.Client{
+					Timeout: time.Second * 10,
 					Transport: &http.Transport{
 						DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 							return dialer.Dial(network, addr)
@@ -60,7 +66,7 @@ func main() {
 		}
 		skip = 0
 		for true {
-			resp, err := req.Get("http://restful-1:8080/api/get/list", req.QueryParam{
+			resp, err := req.Get(*addr, req.QueryParam{
 				"google":   false,
 				"protocol": "socks5",
 				"limit":    10,
@@ -81,6 +87,7 @@ func main() {
 				dialer, _ := proxy.SOCKS5("tcp", fmt.Sprintf("%v:%v", ip, port), nil, proxy.Direct)
 
 				client := &http.Client{
+					Timeout: time.Second * 10,
 					Transport: &http.Transport{
 						DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 							return dialer.Dial(network, addr)
@@ -104,7 +111,7 @@ func main() {
 
 		skip = 0
 		for true {
-			resp, err := req.Get("http://restful-1:8080/api/get/list", req.QueryParam{
+			resp, err := req.Get(*addr, req.QueryParam{
 				"google":   false,
 				"protocol": "http",
 				"limit":    10,
@@ -125,6 +132,7 @@ func main() {
 
 				urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 				client := &http.Client{
+					Timeout: time.Second * 10,
 					Transport: &http.Transport{
 						Proxy:             http.ProxyURL(urlproxy),
 						DisableKeepAlives: true,
@@ -145,7 +153,7 @@ func main() {
 
 		skip = 0
 		for true {
-			resp, err := req.Get("http://restful-1:8080/api/get/list", req.QueryParam{
+			resp, err := req.Get(*addr, req.QueryParam{
 				"google":   true,
 				"protocol": "http",
 				"limit":    10,
@@ -166,6 +174,7 @@ func main() {
 
 				urlproxy, _ := url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 				client := &http.Client{
+					Timeout: time.Second * 10,
 					Transport: &http.Transport{
 						Proxy:             http.ProxyURL(urlproxy),
 						DisableKeepAlives: true,
@@ -185,10 +194,9 @@ func main() {
 		}
 
 		for _, i2 := range offlist {
-			req.Post("http://restful-1:8080/api/post/delete", req.Param{
+			req.Post(*deleteaddr, req.Param{
 				"id": i2,
 			})
 		}
 	}
-
 }
