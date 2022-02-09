@@ -61,6 +61,16 @@ func (f flagValue) Reget(path string, obj interface{}) {
 	_ = json.Unmarshal(out, obj)
 }
 
+func (f flagValue) RegetAll() []byte {
+	r, err := req.Get(fmt.Sprintf("http://%v/api/config/get", f.cfgaddr))
+	utils.FatalAssert(err)
+	return r.Bytes()
+}
+
+func (f flagValue) Reset(obj interface{}) {
+	req.Post(fmt.Sprintf("http://%v/api/config/set", req.BodyJSON(obj)))
+}
+
 func (f flagValue) Get(path string, obj interface{}) {
 	out, err := json.Marshal(f.cfg[path])
 	utils.FatalAssert(err)
