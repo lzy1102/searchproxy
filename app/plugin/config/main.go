@@ -28,6 +28,7 @@ func main() {
 			return
 		}
 		ioutil.WriteFile("config.json", marshal, 0777)
+		c.JSON(200, data)
 	})
 	err = app.Run(":8080")
 	if err != nil {

@@ -34,7 +34,7 @@ func Cors() gin.HandlerFunc {
 }
 
 func main() {
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 	app := gin.Default()
 	app.Use(Cors())
 	view.Route(app)

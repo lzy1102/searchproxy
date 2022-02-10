@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/imroc/req"
 	"io/ioutil"
+	"log"
 	"os"
 	"searchproxy/app/fram/utils"
 	"sync"
@@ -68,7 +69,11 @@ func (f flagValue) RegetAll() []byte {
 }
 
 func (f flagValue) Reset(obj interface{}) {
-	req.Post(fmt.Sprintf("http://%v/api/config/set", f.cfgaddr), req.BodyJSON(obj))
+	resp, err := req.Post(fmt.Sprintf("http://%v/api/config/set", f.cfgaddr), req.BodyJSON(obj))
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(resp.ToString())
 }
 
 func (f flagValue) Get(path string, obj interface{}) {
