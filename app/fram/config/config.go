@@ -68,7 +68,7 @@ func (f flagValue) RegetAll() []byte {
 }
 
 func (f flagValue) Reset(obj interface{}) {
-	req.Post(fmt.Sprintf("http://%v/api/config/set", req.BodyJSON(obj)))
+	req.Post(fmt.Sprintf("http://%v/api/config/set", f.cfgaddr), req.BodyJSON(obj))
 }
 
 func (f flagValue) Get(path string, obj interface{}) {
