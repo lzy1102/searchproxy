@@ -198,5 +198,6 @@ func main() {
 				"id": i2,
 			})
 		}
+		time.Sleep(time.Hour)
 	}
 }
