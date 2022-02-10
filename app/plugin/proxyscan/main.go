@@ -38,13 +38,13 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
 				return dialer.Dial(network, addr)
 			}}}
-	r, err := req.Get("https://www.google.com", client, req.Header{
+	r, err := req.Get("http://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
 		return true, true, "socks5"
 	}
-	r, err = req.Get("https://www.baidu.com", client, req.Header{
+	r, err = req.Get("http://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
@@ -57,23 +57,11 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("https://www.google.com", client, req.Header{
+	r, err = req.Get("http://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
 		return true, true, "http"
-	}
-	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
-	client = &http.Client{
-		Timeout: time.Duration(myinfo.timeout) * time.Second,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(urlproxy),
-		}}
-	r, err = req.Get("https://www.google.com", client, req.Header{
-		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
-	})
-	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
-		return true, true, "https"
 	}
 	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
@@ -81,23 +69,35 @@ func scanproxy(ip string, port int) (bool, bool, string) {
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("https://www.baidu.com", client, req.Header{
+	r, err = req.Get("http://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
-	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
-		return true, false, "http"
+	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
+		return true, true, "http"
 	}
-	urlproxy, _ = url.Parse(fmt.Sprintf("https://%v:%v", ip, port))
+	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
 	client = &http.Client{
 		Timeout: time.Duration(myinfo.timeout) * time.Second,
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(urlproxy),
 		}}
-	r, err = req.Get("https://www.baidu.com", client, req.Header{
+	r, err = req.Get("http://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
-		return true, false, "https"
+		return true, false, "http"
+	}
+	urlproxy, _ = url.Parse(fmt.Sprintf("http://%v:%v", ip, port))
+	client = &http.Client{
+		Timeout: time.Duration(myinfo.timeout) * time.Second,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(urlproxy),
+		}}
+	r, err = req.Get("http://www.baidu.com", client, req.Header{
+		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
+	})
+	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
+		return true, false, "http"
 	}
 
 	return false, false, ""
@@ -124,7 +124,7 @@ func proxysocks5google(ip string, port int, c chan interface{}) {
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-	r, err := req.Get("https://www.google.com", client, req.Header{
+	r, err := req.Get("http://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
@@ -166,7 +166,7 @@ func proxysocks5baidu(ip string, port int, c chan interface{}) {
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-	r, err := req.Get("https://www.baidu.com", client, req.Header{
+	r, err := req.Get("http://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {
@@ -197,7 +197,7 @@ func proxyhttpgoogle(ip string, port int, c chan interface{}) {
 			DisableKeepAlives: true,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		}}
-	r, err := req.Get("https://www.google.com", client, req.Header{
+	r, err := req.Get("http://www.google.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("google", r.Response().Body) {
@@ -227,7 +227,7 @@ func proxyhttpbaidu(ip string, port int, c chan interface{}) {
 			DisableKeepAlives: true,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
 		}}
-	r, err := req.Get("https://www.baidu.com", client, req.Header{
+	r, err := req.Get("http://www.baidu.com", client, req.Header{
 		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36`,
 	})
 	if err == nil && r.Response().StatusCode == 200 && checktitle("百度一下，你就知道", r.Response().Body) {

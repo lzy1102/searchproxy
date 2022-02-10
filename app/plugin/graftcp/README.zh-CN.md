@@ -1,6 +1,6 @@
 # graftcp
 
-[![Build Status](https://travis-ci.org/hmgle/graftcp.svg?branch=master)](https://travis-ci.org/hmgle/graftcp)
+[![Build Status](http://travis-ci.org/hmgle/graftcp.svg?branch=master)](http://travis-ci.org/hmgle/graftcp)
 
 [English](./README.md) | **简体中文**
 
@@ -8,17 +8,17 @@
 
 `graftcp` 可以把任何指定程序（应用程序、脚本、shell 等）的 TCP 连接重定向到 SOCKS5 或 HTTP 代理。
 
-对比 [tsocks](https://linux.die.net/man/8/tsocks)、[proxychains](http://proxychains.sourceforge.net/) 或 [proxychains-ng](https://github.com/rofl0r/proxychains-ng)，`graftcp` 并不使用 [LD_PRELOAD 技巧](https://stackoverflow.com/questions/426230/what-is-the-ld-preload-trick)来劫持共享库的 connect()、getaddrinfo()
-等系列函数达到重定向目的，这种方法只对使用动态链接编译的程序有效，对于静态链接编译出来的程序，例如[默认选项编译的 Go 程序](https://golang.org/cmd/link/)，[proxychains-ng 就无效了](https://github.com/rofl0r/proxychains-ng/issues/199)。`graftcp` 使用 [`ptrace(2)`](https://en.wikipedia.org/wiki/Ptrace) 系统调用跟踪或修改任意指定程序的 connect 信息，对任何程序都有效。[工作原理](#principles)后面将会解释。
+对比 [tsocks](http://linux.die.net/man/8/tsocks)、[proxychains](http://proxychains.sourceforge.net/) 或 [proxychains-ng](http://github.com/rofl0r/proxychains-ng)，`graftcp` 并不使用 [LD_PRELOAD 技巧](http://stackoverflow.com/questions/426230/what-is-the-ld-preload-trick)来劫持共享库的 connect()、getaddrinfo()
+等系列函数达到重定向目的，这种方法只对使用动态链接编译的程序有效，对于静态链接编译出来的程序，例如[默认选项编译的 Go 程序](http://golang.org/cmd/link/)，[proxychains-ng 就无效了](http://github.com/rofl0r/proxychains-ng/issues/199)。`graftcp` 使用 [`ptrace(2)`](http://en.wikipedia.org/wiki/Ptrace) 系统调用跟踪或修改任意指定程序的 connect 信息，对任何程序都有效。[工作原理](#principles)后面将会解释。
 
 ## 安装
 
 ### 源码安装
 
-`graftcp` 在 Linux 系统内运行。 `graftcp-local` 使用 Go 编写, [Go](https://golang.org/doc/install) 环境是必需的。
+`graftcp` 在 Linux 系统内运行。 `graftcp-local` 使用 Go 编写, [Go](http://golang.org/doc/install) 环境是必需的。
 
 ```
-git clone https://github.com/hmgle/graftcp.git
+git clone http://github.com/hmgle/graftcp.git
 cd graftcp
 make
 ```
@@ -33,7 +33,7 @@ sudo make install_systemd
 
 ### 二进制包安装
 
-在 https://github.com/hmgle/graftcp/releases 下载 [Debian](https://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp_0.4.0-1_amd64.deb) 或者 [Arch Linux](https://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp-0.4.0-1-x86_64.pkg.tar.zst) 安装包并安装。
+在 http://github.com/hmgle/graftcp/releases 下载 [Debian](http://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp_0.4.0-1_amd64.deb) 或者 [Arch Linux](http://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp-0.4.0-1-x86_64.pkg.tar.zst) 安装包并安装。
 
 ## 用法参数
 
@@ -156,7 +156,7 @@ graftcp-local/graftcp-local
 
 ```console
 % ./graftcp bash
-$ wget https://www.google.com
+$ wget http://www.google.com
 ```
 
 ![demo](demo.gif)
@@ -203,7 +203,7 @@ $ wget https://www.google.com
 
 全局式：比如使用 `iptables` + `RedSocks` 可以把系统符合一定规则的流量转换为 SOCKS5 流量。这种方式的优点是全局有效；缺点是所有满足该规则的流量都被重定向了，影响范围较大。
 
-设置环境变量方式：一些程序启动时会读取 proxy 相关的环境变量来决定是否将自己的数据转换为对应代理协议的流量，比如 `curl` 会[读取 `http_proxy`, `ftp_proxy`, `all_proxy` 环境变量并根据请求 scheme 来决定转换为哪种代理流量](https://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html)。这种方法只有程序本身实现了转换的功能才有效，局限性较大。  
+设置环境变量方式：一些程序启动时会读取 proxy 相关的环境变量来决定是否将自己的数据转换为对应代理协议的流量，比如 `curl` 会[读取 `http_proxy`, `ftp_proxy`, `all_proxy` 环境变量并根据请求 scheme 来决定转换为哪种代理流量](http://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html)。这种方法只有程序本身实现了转换的功能才有效，局限性较大。  
 
 仅针对程序方式： 这种方式可以仅针对特定的程序执行重定向，比如 `tsocks` 或 `proxychains`。如前面提到，它们之前都是使用 `LD_PRELOAD` 劫持动态库方式实现，对 `Go` 之类默认静态链接编译的程序就无效了。`graftcp` 改进了这一点，能够重定向任何程序的 TCP 连接。
 
@@ -219,11 +219,11 @@ $ wget https://www.google.com
 
 `graftcp` 在子进程调用 `clone(2)` 之前会把它拦截，清除这个 `CLONE_UNTRACED` 标志位，所以被跟踪的子进程最终还是难逃被跟踪的命运。另外，这个 `CLONE_UNTRACED` 标志位本意是给内核使用的，普通程序不应该去设置它。
 
-Linux 提供了一种限制被 `ptrace(2)` 跟踪的方法：设置 [`/proc/sys/kernel/yama/ptrace_scope`](https://www.kernel.org/doc/Documentation/security/Yama.txt) 的值，若 `ptrace(2)` 失效，请检查该值是否被修改过。
+Linux 提供了一种限制被 `ptrace(2)` 跟踪的方法：设置 [`/proc/sys/kernel/yama/ptrace_scope`](http://www.kernel.org/doc/Documentation/security/Yama.txt) 的值，若 `ptrace(2)` 失效，请检查该值是否被修改过。
 
 ### 支持 macOS 吗？
 
-不。macOS 的 [`ptrace(2)`](http://polarhome.com/service/man/?qf=ptrace&af=0&sf=0&of=Darwin&tf=2) 是个半残品。~~不过理论上参考 DTrace那一套也能实现~~，见[issue 12](https://github.com/hmgle/graftcp/issues/12)。或许有兴趣的同学可以趟下这趟浑水 :grin:
+不。macOS 的 [`ptrace(2)`](http://polarhome.com/service/man/?qf=ptrace&af=0&sf=0&of=Darwin&tf=2) 是个半残品。~~不过理论上参考 DTrace那一套也能实现~~，见[issue 12](http://github.com/hmgle/graftcp/issues/12)。或许有兴趣的同学可以趟下这趟浑水 :grin:
 
 ## TODO
 
@@ -232,14 +232,14 @@ Linux 提供了一种限制被 `ptrace(2)` 跟踪的方法：设置 [`/proc/sys/
 
 ## 感谢及参考
 
-- [maybe](https://github.com/p-e-w/maybe), [proxychains](http://proxychains.sourceforge.net/) and [proxychains-ng](https://github.com/rofl0r/proxychains-ng) for inspiration
-- [strace](https://strace.io/)
-- [uthash](https://troydhanson.github.io/uthash/)
-- [service](https://github.com/kardianos/service)
-- [dlog](https://github.com/jedisct1/dlog)
+- [maybe](http://github.com/p-e-w/maybe), [proxychains](http://proxychains.sourceforge.net/) and [proxychains-ng](http://github.com/rofl0r/proxychains-ng) for inspiration
+- [strace](http://strace.io/)
+- [uthash](http://troydhanson.github.io/uthash/)
+- [service](http://github.com/kardianos/service)
+- [dlog](http://github.com/jedisct1/dlog)
 
 ## License
 
 Copyright &copy; 2016, 2018-2021 Hmgle <dustgle@gmail.com>
 
-根据 [GPLv3 许可](https://www.gnu.org/licenses/gpl-3.0.html)发布。
+根据 [GPLv3 许可](http://www.gnu.org/licenses/gpl-3.0.html)发布。

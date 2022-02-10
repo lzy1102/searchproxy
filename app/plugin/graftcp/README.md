@@ -1,12 +1,12 @@
 <!--
 # GRAFTCP
 
-`graftcp` is a proxy tool inspiring by [maybe](https://github.com/p-e-w/maybe) and [proxychains](https://github.com/haad/proxychains).
+`graftcp` is a proxy tool inspiring by [maybe](http://github.com/p-e-w/maybe) and [proxychains](http://github.com/haad/proxychains).
 It hooks `connect(2)` function via `ptrace(2)` and redirects the connection through SOCKS5 proxies.
 -->
 # graftcp
 
-[![Build Status](https://travis-ci.org/hmgle/graftcp.svg?branch=master)](https://travis-ci.org/hmgle/graftcp)
+[![Build Status](http://travis-ci.org/hmgle/graftcp.svg?branch=master)](http://travis-ci.org/hmgle/graftcp)
 
 **English** | [简体中文](./README.zh-CN.md)
 
@@ -14,17 +14,17 @@ It hooks `connect(2)` function via `ptrace(2)` and redirects the connection thro
 
 `graftcp` can redirect the TCP connection made by the given program \[application, script, shell, etc.\] to SOCKS5 or HTTP proxy.
 
-Compared with [tsocks](https://linux.die.net/man/8/tsocks), [proxychains](http://proxychains.sourceforge.net/) or [proxychains-ng](https://github.com/rofl0r/proxychains-ng), `graftcp` is not using the [LD_PRELOAD trick](https://stackoverflow.com/questions/426230/what-is-the-ld-preload-trick) which only work for dynamically linked programs, e.g., [applications built by Go can not be hook by proxychains-ng](https://github.com/rofl0r/proxychains-ng/issues/199). `graftcp` can trace or modify any
-given program's connect by [`ptrace(2)`](https://en.wikipedia.org/wiki/Ptrace), so it is workable for any program. The principle will be explained in this paragraph of [how does it work](#principles).
+Compared with [tsocks](http://linux.die.net/man/8/tsocks), [proxychains](http://proxychains.sourceforge.net/) or [proxychains-ng](http://github.com/rofl0r/proxychains-ng), `graftcp` is not using the [LD_PRELOAD trick](http://stackoverflow.com/questions/426230/what-is-the-ld-preload-trick) which only work for dynamically linked programs, e.g., [applications built by Go can not be hook by proxychains-ng](http://github.com/rofl0r/proxychains-ng/issues/199). `graftcp` can trace or modify any
+given program's connect by [`ptrace(2)`](http://en.wikipedia.org/wiki/Ptrace), so it is workable for any program. The principle will be explained in this paragraph of [how does it work](#principles).
 
 ## Installation 
 
 ### Install from source
 
-`graftcp` runs on Linux. Building `graftcp-local` requires [Go](https://golang.org/doc/install) installed.
+`graftcp` runs on Linux. Building `graftcp-local` requires [Go](http://golang.org/doc/install) installed.
 
 ```sh
-git clone https://github.com/hmgle/graftcp.git
+git clone http://github.com/hmgle/graftcp.git
 cd graftcp
 make
 ```
@@ -39,7 +39,7 @@ sudo make install_systemd
 
 ### Install from binary package
 
-Download the [Debian](https://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp_0.4.0-1_amd64.deb) or [Arch Linux](https://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp-0.4.0-1-x86_64.pkg.tar.zst) package from https://github.com/hmgle/graftcp/releases and install.
+Download the [Debian](http://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp_0.4.0-1_amd64.deb) or [Arch Linux](http://github.com/hmgle/graftcp/releases/download/v0.4.0/graftcp-0.4.0-1-x86_64.pkg.tar.zst) package from http://github.com/hmgle/graftcp/releases and install.
 
 ## Usage
 
@@ -163,7 +163,7 @@ Launch `Bash` / `Zsh` / `Fish` via `graftcp`, then all the TCP traffic generated
 
 ```console
 % ./graftcp bash
-$ wget https://www.google.com
+$ wget http://www.google.com
 ```
 ![demo](demo.gif)
 
@@ -209,7 +209,7 @@ The main ones are: global way, environment variables setting way, and programs s
 
 Global way: e.g., use `iptables` + `RedSocks` to convert the system's traffic that match certain rules into SOCKS5 traffic. The pros is that it is globally effective; the cons is that all traffic that satisfies the rule is redirected, and the scope of influence is large.
 
-Environment variable setting: some programs will read the proxy-related environment variables to determine whether to convert their own traffic to the corresponding proxy protocol traffic, such as `curl` will [read `http_proxy`, `ftp_proxy`, `all_proxy ` Environment variables and decide which proxy traffic to convert based on the request URL scheme](https://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html). This way is effective only if the program itself implements the traffic conversion function, so
+Environment variable setting: some programs will read the proxy-related environment variables to determine whether to convert their own traffic to the corresponding proxy protocol traffic, such as `curl` will [read `http_proxy`, `ftp_proxy`, `all_proxy ` Environment variables and decide which proxy traffic to convert based on the request URL scheme](http://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html). This way is effective only if the program itself implements the traffic conversion function, so
 it is very limited.
 
 programs selection way: this way can only perform redirection for specified programs, such as `tsocks` or `proxychains`. As mentioned earlier, they were using the `LD_PRELOAD` hijacking dynamic library function, and the default static link compiled program such as `Go` is invalid. `graftcp` improves this by being able to redirect TCP connections from any program.
@@ -220,17 +220,17 @@ No. By default, `graftcp` ignore the connections to localhost. If you want to re
 
 ###  I am suffering a DNS cache poisoning attack, does `graftcp` handle DNS requests?
 
-No. `graftcp` currently only handles TCP connections. [`dnscrypt-proxy`](https://github.com/jedisct1/dnscrypt-proxy) or `ChinaDNS` may help you.
+No. `graftcp` currently only handles TCP connections. [`dnscrypt-proxy`](http://github.com/jedisct1/dnscrypt-proxy) or `ChinaDNS` may help you.
 
 ### The `clone(2)`'s argument has a flag `CLONE_UNTRACED` to avoid being traced, how does `graftcp` do forced tracing?
 
 `graftcp` will intercept the `clone(2)` syscall, and clearing the `CLONE_UNTRACED` flag, so the tracked child process could not escape the fate of being tracked. In addition, this `CLONE_UNTRACED` flag is intended for the kernel, and user space program should not set it.
 
-Linux provides a way to limit the `ptrace(2)`: set the value of [`/proc/sys/kernel/yama/ptrace_scope`](https://www.kernel.org/doc/Documentation/security/Yama.txt). If `ptrace(2)` is invalid, check if the default value has been modified.
+Linux provides a way to limit the `ptrace(2)`: set the value of [`/proc/sys/kernel/yama/ptrace_scope`](http://www.kernel.org/doc/Documentation/security/Yama.txt). If `ptrace(2)` is invalid, check if the default value has been modified.
 
 ### Does it support macOS?
 
-No. macOS's [`ptrace(2)`](http://polarhome.com/service/man/?qf=ptrace&af=0&sf=0&of=Darwin&tf=2) is useless. ~~However, it can also be achieved theoretically by referring to `DTrace`~~. See [issue 12](https://github.com/hmgle/graftcp/issues/12). Anyone try it? :grin:
+No. macOS's [`ptrace(2)`](http://polarhome.com/service/man/?qf=ptrace&af=0&sf=0&of=Darwin&tf=2) is useless. ~~However, it can also be achieved theoretically by referring to `DTrace`~~. See [issue 12](http://github.com/hmgle/graftcp/issues/12). Anyone try it? :grin:
 
 ## TODO
 
@@ -239,14 +239,14 @@ No. macOS's [`ptrace(2)`](http://polarhome.com/service/man/?qf=ptrace&af=0&sf=0&
 
 ## Acknowledgements and References
 
-- [maybe](https://github.com/p-e-w/maybe), [proxychains](http://proxychains.sourceforge.net/) and [proxychains-ng](https://github.com/rofl0r/proxychains-ng) for inspiration
-- [strace](https://strace.io/)
-- [uthash](https://troydhanson.github.io/uthash/)
-- [service](https://github.com/kardianos/service)
-- [dlog](https://github.com/jedisct1/dlog)
+- [maybe](http://github.com/p-e-w/maybe), [proxychains](http://proxychains.sourceforge.net/) and [proxychains-ng](http://github.com/rofl0r/proxychains-ng) for inspiration
+- [strace](http://strace.io/)
+- [uthash](http://troydhanson.github.io/uthash/)
+- [service](http://github.com/kardianos/service)
+- [dlog](http://github.com/jedisct1/dlog)
 
 ## LICENSE
 
 Copyright &copy; 2016, 2018-2021 Hmgle <dustgle@gmail.com>
 
-Released under the terms of the [GNU General Public License, version 3](https://www.gnu.org/licenses/gpl-3.0.html)
+Released under the terms of the [GNU General Public License, version 3](http://www.gnu.org/licenses/gpl-3.0.html)

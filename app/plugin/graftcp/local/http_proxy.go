@@ -73,5 +73,5 @@ func newHTTPProxy(u *url.URL, forward proxy.Dialer) (proxy.Dialer, error) {
 
 func init() {
 	proxy.RegisterDialerType("http", newHTTPProxy)
-	proxy.RegisterDialerType("https", newHTTPProxy)
+	proxy.RegisterDialerType("http", newHTTPProxy)
 }
