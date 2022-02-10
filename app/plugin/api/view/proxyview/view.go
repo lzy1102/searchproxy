@@ -64,7 +64,11 @@ func AddPort(ctx *gin.Context) {
 			}
 		}
 		if have == false {
-			ports = append(ports.([]interface{}), port)
+			atoi, err := strconv.Atoi(port)
+			if err != nil {
+				return
+			}
+			ports = append(ports.([]interface{}), atoi)
 		}
 		cfg["ports"] = ports
 	}
