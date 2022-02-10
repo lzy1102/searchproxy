@@ -66,6 +66,7 @@ func AddPort(ctx *gin.Context) {
 		if have == false {
 			ports = append(ports.([]interface{}), port)
 		}
+		cfg["ports"] = ports
 	}
 	config.Install().Reset(cfg)
 	ctx.JSON(200, gin.H{"code": 200, "data": cfg})
