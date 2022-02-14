@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"go.mongodb.org/mongo-driver/bson"
 	"io/ioutil"
 	"os"
@@ -24,7 +25,8 @@ type save struct {
 
 func main() {
 	sc := save{}
-	sc.datafile = os.Args[len(os.Args)-1]
+	//sc.datafile = os.Args[len(os.Args)-1]
+	sc.datafile = *flag.String("datafile", "datafile.json", "")
 
 	bts, err := ioutil.ReadFile(sc.datafile)
 	utils.FatalAssert(err)

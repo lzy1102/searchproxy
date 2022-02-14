@@ -17,7 +17,7 @@
     "datafile": "datafile.json",
     "taskname": "save",
     "cmdkey": [],
-    "cmd": "./save -mod true -cfgaddr config-1:8080 datafile.json",
+    "cmd": "./save -mod true -cfgaddr config-1:8080 -datafile datafile.json",
     "out": "",
     "next": []
   },
